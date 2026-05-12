@@ -3,1347 +3,401 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>TechMaster Quiz - Domine Pilhas, Árvores, Hash Tables e mais</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #0f172a;
-            --card: rgba(255, 255, 255, 0.06);
-            --border: rgba(255, 255, 255, 0.1);
-
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-
-            --success: #10b981;
-            --danger: #ef4444;
-
-            --text: #f8fafc;
-            --muted: #94a3b8;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-
-            background:
-                radial-gradient(circle at top left, #312e81 0%, transparent 30%),
-                radial-gradient(circle at bottom right, #1e1b4b 0%, transparent 35%),
-                linear-gradient(135deg, #020617 0%, #0f172a 100%);
-
-            min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            padding: 24px;
-
-            color: var(--text);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 950px;
-
-            background: rgba(15, 23, 42, .72);
-
-            border: 1px solid var(--border);
-
-            backdrop-filter: blur(18px);
-
-            border-radius: 30px;
-
-            overflow: hidden;
-        }
-
-        .header {
-            padding: 40px;
-
-            border-bottom: 1px solid var(--border);
-
-            background:
-                linear-gradient(135deg,
-                    rgba(99, 102, 241, .18),
-                    rgba(129, 140, 248, .08));
-        }
-
-        .header h1 {
-            font-size: 38px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-
-        .header p {
-            color: var(--muted);
-            font-size: 15px;
-        }
-
-        .content {
-            padding: 32px;
-        }
-
-        .filter-box {
-            background: var(--card);
-
-            border: 1px solid var(--border);
-
-            border-radius: 24px;
-
-            padding: 24px;
-
-            margin-bottom: 28px;
-        }
-
-        .filter-box h3 {
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-
-        .filter-box p {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 18px;
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 14px;
-        }
-
-        .topic-select {
-            flex: 1;
-
-            background: rgba(255, 255, 255, .06);
-
-            border: 1px solid rgba(255, 255, 255, .1);
-
-            border-radius: 16px;
-
-            color: white;
-
-            padding: 16px;
-
-            font-size: 15px;
-
-            outline: none;
-        }
-
-        .topic-select:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-start,
-        .btn-next,
-        .btn-restart {
-            border: none;
-
-            background:
-                linear-gradient(135deg,
-                    var(--primary),
-                    var(--primary-light));
-
-            color: white;
-
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition: .2s ease;
-        }
-
-        .btn-start:hover,
-        .btn-next:hover,
-        .btn-restart:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-start {
-            padding: 16px 22px;
-            border-radius: 16px;
-        }
-
-        .quiz-section.hidden {
-            display: none;
-        }
-
-        .progress-wrapper {
-            margin-bottom: 26px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-
-            color: var(--muted);
-
-            margin-bottom: 10px;
-
-            font-size: 14px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 14px;
-
-            background: rgba(255, 255, 255, .06);
-
-            border-radius: 999px;
-
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-
-            width: 0%;
-
-            border-radius: 999px;
-
-            background:
-                linear-gradient(90deg,
-                    var(--primary),
-                    #8b5cf6);
-
-            transition: .3s ease;
-        }
-
-        .stats-grid {
-            display: grid;
-
-            grid-template-columns: repeat(4, 1fr);
-
-            gap: 16px;
-
-            margin-bottom: 28px;
-        }
-
-        .stat-card {
-            background: var(--card);
-
-            border: 1px solid var(--border);
-
-            border-radius: 22px;
-
-            padding: 22px;
-        }
-
-        .stat-label {
-            color: var(--muted);
-
-            font-size: 13px;
-
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .question-card {
-            background:
-                linear-gradient(135deg,
-                    rgba(255, 255, 255, .06),
-                    rgba(255, 255, 255, .03));
-
-            border: 1px solid var(--border);
-
-            border-radius: 28px;
-
-            padding: 34px;
-
-            margin-bottom: 22px;
-        }
-
-        .topic-badge {
-            display: inline-block;
-
-            background:
-                rgba(99, 102, 241, .18);
-
-            color: #c7d2fe;
-
-            padding: 10px 16px;
-
-            border-radius: 999px;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            margin-bottom: 20px;
-        }
-
-        .question-text {
-            font-size: 28px;
-
-            line-height: 1.5;
-
-            font-weight: 700;
-        }
-
-        .buttons {
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-
-            gap: 16px;
-
-            margin-bottom: 22px;
-        }
-
-        .btn {
-            border: none;
-
-            border-radius: 22px;
-
-            padding: 22px;
-
-            color: white;
-
-            font-size: 18px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition: .2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-        }
-
-        .btn-true {
-            background:
-                linear-gradient(135deg,
-                    #059669,
-                    #10b981);
-        }
-
-        .btn-false {
-            background:
-                linear-gradient(135deg,
-                    #dc2626,
-                    #ef4444);
-        }
-
-        .feedback {
-            display: none;
-
-            padding: 24px;
-
-            border-radius: 24px;
-
-            margin-bottom: 22px;
-        }
-
-        .feedback.show {
-            display: block;
-        }
-
-        .feedback.correct {
-            background: rgba(16, 185, 129, .12);
-            border: 1px solid rgba(16, 185, 129, .25);
-        }
-
-        .feedback.incorrect {
-            background: rgba(239, 68, 68, .12);
-            border: 1px solid rgba(239, 68, 68, .25);
-        }
-
-        .feedback-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            font-size: 18px;
-            font-weight: 700;
-
-            margin-bottom: 10px;
-        }
-
-        .feedback-text {
-            line-height: 1.7;
-        }
-
-        .btn-next {
-            width: 100%;
-
-            padding: 18px;
-
-            border-radius: 18px;
-
-            display: none;
-        }
-
-        .btn-next.show {
-            display: block;
-        }
-
-        .result-screen {
-            display: none;
-            text-align: center;
-        }
-
-        .result-screen.show {
-            display: block;
-        }
-
-        .result-emoji {
-            font-size: 90px;
-            margin-bottom: 14px;
-        }
-
-        .result-score {
-            font-size: 70px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-
-        .result-message {
-            color: var(--muted);
-            font-size: 18px;
-            margin-bottom: 28px;
-        }
-
-        .result-details {
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-
-            gap: 16px;
-
-            margin-bottom: 24px;
-        }
-
-        .result-detail {
-            background: var(--card);
-
-            border: 1px solid var(--border);
-
-            border-radius: 22px;
-
-            padding: 24px;
-        }
-
-        .result-detail-label {
-            color: var(--muted);
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .result-detail-value {
-            font-size: 34px;
-            font-weight: 800;
-        }
-
-        .btn-restart {
-            width: 100%;
-
-            padding: 18px;
-
-            border-radius: 18px;
-        }
-
-        @media (max-width: 768px) {
-
-            .stats-grid,
-            .buttons,
-            .result-details,
-            .filter-row {
-                grid-template-columns: 1fr;
-                display: grid;
-            }
-
-            .header h1 {
-                font-size: 28px;
-            }
-
-            .question-text {
-                font-size: 22px;
-            }
-
-            .content {
-                padding: 22px;
-            }
-
-            .question-card {
-                padding: 24px;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>TechMaster Quiz · Estruturas de Dados & Arquitetura</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-slide': 'fadeSlide 0.2s ease-out',
+                    },
+                    keyframes: {
+                        fadeSlide: {
+                            '0%': { opacity: '0', transform: 'translateY(-6px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
             }
         }
-    </style>
+    </script>
 </head>
 
-<body>
+<body
+    class="bg-gradient-to-br from-[#0f172a] via-[#0b0f1c] to-[#020617] min-h-screen flex items-center justify-center p-5 md:p-6 font-sans">
 
-    <div class="container">
+    <div class="w-full max-w-4xl mx-auto card-glass rounded-3xl shadow-2xl overflow-hidden transition-all">
 
-        <div class="header">
-            <h1>🧠 Estruturas de Dados</h1>
-
-            <p>
-                Estude Pilhas, Filas, HashMap,
-                Árvores e muito mais.
-            </p>
+        <div
+            class="px-6 py-8 md:px-10 md:py-10 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent">
+            <h1
+                class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-300 bg-clip-text text-transparent">
+                🧠 Estruturas de Dados</h1>
+            <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Pilhas, HashMap, Árvores, Filas, Cloud,
+                Backend & mais — desafie seu conhecimento.</p>
         </div>
 
-        <div class="content">
+        <div class="p-5 md:p-8">
 
-            <!-- FILTER -->
-            <div class="filter-box">
-
-                <h3>Escolha um assunto</h3>
-
-                <p>
-                    Escolha um modo de jogo e comece o quiz.
-                </p>
-
-                <div class="filter-row">
-
-                    <select id="topicSelect" class="topic-select">
-                        <option value="">
-                            Todos os assuntos
-                        </option>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 mb-8 backdrop-blur-sm">
+                <h3 class="text-white font-bold text-lg mb-1">🎯 Escolha seu desafio</h3>
+                <p class="text-slate-400 text-sm mb-5">Filtre por tópico, mude a dificuldade da prova e domine a ciência
+                    da computação.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <select id="topicSelect"
+                        class="w-full sm:flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                        <option value="">📚 Todos os assuntos</option>
                     </select>
-
-                    <select id="modeSelect" class="topic-select">
-
-                        <option value="normal">
-                            🎯 Normal
-                        </option>
-
-                        <option value="enem">
-                            🧠 ENEM
-                        </option>
-
-                        <option value="hardcore">
-                            💀 Hardcore
-                        </option>
-
+                    <select id="modeSelect"
+                        class="w-full sm:flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                        <option value="normal">🎯 Normal (pontuação clássica)</option>
+                        <option value="enem">🧠 ENEM (peso por dificuldade + penalidade fácil)</option>
+                        <option value="hardcore">💀 Hardcore (3 vidas, game over)</option>
                     </select>
-
-                    <button class="btn-start" onclick="startQuiz()">
-                        🚀 Iniciar Quiz
-                    </button>
-
+                    <button onclick="startQuiz()"
+                        class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-900/30 flex items-center justify-center gap-2">🚀
+                        Iniciar Quiz</button>
                 </div>
-
             </div>
 
-            <!-- QUIZ -->
-            <div id="quizSection" class="quiz-section hidden">
+            <div id="quizSection" class="hidden space-y-6">
 
-                <!-- PROGRESS -->
-                <div class="progress-wrapper">
-
-                    <div class="progress-header">
-
-                        <span>
-                            Progresso
-                        </span>
-
-                        <span id="progressText">
-                            0/0
-                        </span>
-
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm text-slate-400 font-medium">
+                        <span>📊 Progresso</span>
+                        <span id="progressText">0/0</span>
                     </div>
-
-                    <div class="progress-bar">
-                        <div id="progressFill" class="progress-fill"></div>
+                    <div class="w-full h-2.5 bg-slate-800/70 rounded-full overflow-hidden">
+                        <div id="progressFill"
+                            class="progress-fill h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full">
+                        </div>
                     </div>
-
                 </div>
 
-                <!-- STATS -->
-                <div class="stats-grid">
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Total respondido
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="answeredCount">0</span>
-                        </div>
-
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                        <div class="text-slate-400 text-xs uppercase tracking-wide">Respondidas</div>
+                        <div class="text-3xl font-black text-white"><span id="answeredCount">0</span></div>
                     </div>
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Erros
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="wrongCount">0</span>
-                        </div>
-
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                        <div class="text-slate-400 text-xs uppercase tracking-wide">Erros</div>
+                        <div class="text-3xl font-black text-white"><span id="wrongCount">0</span></div>
                     </div>
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Pontuação
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="percentage">0</span>%
-                        </div>
-
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                        <div class="text-slate-400 text-xs uppercase tracking-wide">Pontuação</div>
+                        <div class="text-3xl font-black text-white"><span id="percentage">0</span>%</div>
                     </div>
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Sequência
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="streak">0</span>
-                        </div>
-
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                        <div class="text-slate-400 text-xs uppercase tracking-wide">🔥 Sequência</div>
+                        <div class="text-3xl font-black text-white"><span id="streak">0</span></div>
                     </div>
-
                 </div>
 
-                <!-- EXTRA INFO -->
-                <div style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                        margin-bottom:20px;
-                        gap:10px;
-                        flex-wrap:wrap;
-                    ">
-
-                    <div id="difficulty" class="topic-badge">
-                        MEDIUM
-                    </div>
-
-                    <div id="lives" style="
-                            font-size:24px;
-                            font-weight:700;
-                        "></div>
-
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div id="difficulty"
+                        class="text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                        ⚡ MODO ATIVO</div>
+                    <div id="lives" class="text-2xl font-bold tracking-wide text-rose-400"></div>
                 </div>
 
-                <!-- QUESTION -->
-                <div class="question-card">
-
-                    <div id="topic" class="topic-badge">
-                        📘 Pilhas
-                    </div>
-
-                    <div id="question" class="question-text">
-                        Pergunta...
-                    </div>
-
+                <div
+                    class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <div id="topic"
+                        class="inline-block text-xs font-bold px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 mb-4">
+                        📘 Tópico</div>
+                    <div id="question" class="text-xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                        Carregando pergunta...</div>
                 </div>
 
-                <!-- FEEDBACK -->
-                <div id="feedback" class="feedback">
-
-                    <div class="feedback-header">
-
-                        <span id="feedbackIcon">
-                            ✓
-                        </span>
-
-                        <span id="feedbackTitle">
-                            Correto!
-                        </span>
-
+                <div id="feedback" class="hidden rounded-xl p-5 border-l-4 transition-all animate-fade-slide">
+                    <div class="flex items-center gap-3 font-bold text-lg mb-2">
+                        <span id="feedbackIcon">✓</span>
+                        <span id="feedbackTitle">Correto</span>
                     </div>
-
-                    <div id="feedbackText" class="feedback-text"></div>
-
+                    <div id="feedbackText" class="text-sm leading-relaxed text-slate-200"></div>
                 </div>
 
-                <!-- BUTTONS -->
-                <div id="buttons" class="buttons">
-
-                    <button class="btn btn-true" onclick="answer(true)">
-                        ✓ Verdadeiro
-                    </button>
-
-                    <button class="btn btn-false" onclick="answer(false)">
-                        ✗ Falso
-                    </button>
-
+                <div id="buttons" class="grid grid-cols-2 gap-4">
+                    <button onclick="answer(true)"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-emerald-900/20">✓
+                        Verdadeiro</button>
+                    <button onclick="answer(false)"
+                        class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-rose-900/20">✗
+                        Falso</button>
                 </div>
-
-                <button id="nextBtn" class="btn-next" onclick="nextQuestion()">
-                    Próxima questão →
-                </button>
-
+                <button id="nextBtn"
+                    class="hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl transition-all text-center">Próxima
+                    questão →</button>
             </div>
 
-            <!-- RESULT -->
-            <div id="resultSection" class="result-screen">
-
-                <div id="resultEmoji" class="result-emoji">
-                    🎉
-                </div>
-
-                <div id="finalScore" class="result-score">
-                    0
-                </div>
-
-                <div id="resultMessage" class="result-message">
-                    Resultado
-                </div>
-
-                <div class="result-details">
-
-                    <div class="result-detail">
-
-                        <div class="result-detail-label">
-                            Acertos
-                        </div>
-
-                        <div id="finalCorrect" class="result-detail-value">
-                            0
-                        </div>
-
+            <div id="resultSection" class="hidden text-center space-y-6">
+                <div id="resultEmoji" class="text-7xl md:text-8xl">🏆</div>
+                <div id="finalScore"
+                    class="text-6xl md:text-7xl font-black bg-gradient-to-r from-amber-200 via-white to-indigo-200 bg-clip-text text-transparent">
+                    0%</div>
+                <div id="resultMessage" class="text-slate-300 text-lg max-w-md mx-auto">Parabéns, você finalizou!</div>
+                <div class="grid grid-cols-2 gap-5 max-w-sm mx-auto">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+                        <div class="text-slate-400 text-xs">✅ Acertos</div>
+                        <div id="finalCorrect" class="text-4xl font-black text-white">0</div>
                     </div>
-
-                    <div class="result-detail">
-
-                        <div class="result-detail-label">
-                            Pontuação final
-                        </div>
-
-                        <div id="finalPercentage" class="result-detail-value">
-                            0%
-                        </div>
-
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+                        <div class="text-slate-400 text-xs">🎯 Pontuação</div>
+                        <div id="finalPercentage" class="text-4xl font-black text-white">0%</div>
                     </div>
-
                 </div>
-
-                <button class="btn-restart" onclick="restart()">
-                    🔄 Jogar novamente
-                </button>
-
+                <button onclick="restart()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-xl transition-all w-full md:w-auto shadow-lg">🔄
+                    Jogar novamente</button>
             </div>
 
         </div>
     </div>
 
     <script type="module">
+        import { stackQuestions, queueQuestions, linkedListQuestions, graphQuestions, hashTableQuestions, heapQuestions, orderingQuestions, searchQuestions, appealQuestions, dynamicProgrammingQuestions, complexityBigOQuestions, advancedStructuresQuestions, treeQuestions } from './questoes/data-struct/index.js';
+        import { microservicesQuestions, tddQuestions, dddQuestions, cleanCodeQuestions, cleanArchQuestions } from './questoes/arch/index.js';
+        import { javaQuestions, phpQuestions, pythonQuestions, golangQuestions } from './questoes/backend/index.js';
+        import { awsQuestions, gcpQuestions } from './questoes/cloud/index.js';
+        import { javascriptQuestions, typescriptQuestions } from './questoes/frontend/index.js';
+        import { rabbitMqQuestions, kafkaQuestions } from './questoes/message/index.js';
 
-        import {
-            stackQuestions,
-            queueQuestions,
-            linkedListQuestions,
-            graphQuestions,
-            hashTableQuestions,
-            heapQuestions,
-            orderingQuestions,
-            searchQuestions,
-            appealQuestions,
-            dynamicProgrammingQuestions,
-            complexityBigOQuestions,
-            advancedStructuresQuestions,
-            treeQuestions
-        } from './questoes/data-struct/index.js';
-
-        import {
-            microservicesQuestions,
-            tddQuestions,
-            dddQuestions,
-            cleanCodeQuestions,
-            cleanArchQuestions
-        } from './questoes/arch/index.js';
-
-        import {
-            javaQuestions,
-            phpQuestions,
-            pythonQuestions,
-            golangQuestions
-        } from './questoes/backend/index.js';
-
-        import {
-            awsQuestions,
-            gcpQuestions
-        } from './questoes/cloud/index.js';
-
-        import {
-            javascriptQuestions,
-            typescriptQuestions
-        } from './questoes/frontend/index.js';
-
-        import {
-            rabbitMqQuestions,
-            kafkaQuestions
-        } from './questoes/message/index.js';
-
-        const questions = [
-
-            ...stackQuestions,
-            ...queueQuestions,
-            ...linkedListQuestions,
-            ...graphQuestions,
-            ...hashTableQuestions,
-            ...heapQuestions,
-            ...orderingQuestions,
-            ...searchQuestions,
-            ...appealQuestions,
-            ...dynamicProgrammingQuestions,
-            ...complexityBigOQuestions,
-            ...advancedStructuresQuestions,
-            ...treeQuestions,
-
-            ...tddQuestions,
-            ...dddQuestions,
-            ...cleanArchQuestions,
-            ...cleanCodeQuestions,
-
-            ...microservicesQuestions,
-            ...rabbitMqQuestions,
-            ...kafkaQuestions,
-
-            ...gcpQuestions,
-            ...awsQuestions,
-
-            ...javaQuestions,
-            ...pythonQuestions,
-            ...phpQuestions,
-            ...javascriptQuestions,
-            ...typescriptQuestions,
-            ...golangQuestions,
-
+        const allQuestions = [
+            ...stackQuestions, ...queueQuestions, ...linkedListQuestions, ...graphQuestions, ...hashTableQuestions,
+            ...heapQuestions, ...orderingQuestions, ...searchQuestions, ...appealQuestions, ...dynamicProgrammingQuestions,
+            ...complexityBigOQuestions, ...advancedStructuresQuestions, ...treeQuestions,
+            ...tddQuestions, ...dddQuestions, ...cleanArchQuestions, ...cleanCodeQuestions,
+            ...microservicesQuestions, ...rabbitMqQuestions, ...kafkaQuestions,
+            ...gcpQuestions, ...awsQuestions,
+            ...javaQuestions, ...pythonQuestions, ...phpQuestions, ...javascriptQuestions, ...typescriptQuestions, ...golangQuestions,
         ];
 
-        let currentIndex = 0;
-
-        let score = 0;
-        let streak = 0;
-        let wrongCount = 0;
-
-        let answered = false;
-
-        let shuffledQuestions = [];
-        let filteredQuestions = [];
-
+        let currentIndex = 0, score = 0, streak = 0, wrongCount = 0, answered = false;
+        let shuffledQuestions = [], filteredQuestions = [];
         let gameMode = 'normal';
-
         let lives = 3;
+        let weightedScore = 0, totalPossibleScore = 0;
+        const difficultyWeights = { easy: 1, medium: 2, hard: 4 };
 
-        let weightedScore = 0;
-        let totalPossibleScore = 0;
+        const topicSelect = document.getElementById('topicSelect');
+        const modeSelect = document.getElementById('modeSelect');
+        const quizSection = document.getElementById('quizSection');
+        const resultSection = document.getElementById('resultSection');
 
-        const difficultyWeights = {
-            easy: 1,
-            medium: 2,
-            hard: 4
-        };
-
-        const topicSelect =
-            document.getElementById('topicSelect');
-
-        const topics = [
-            ...new Set(
-                questions.map(q => q.topic)
-            )
-        ].sort();
-
-        topics.forEach(topic => {
-
-            const option =
-                document.createElement('option');
-
-            option.value = topic;
-            option.textContent = topic;
-
-            topicSelect.appendChild(option);
-
+        const uniqueTopics = [...new Set(allQuestions.map(q => q.topic))].sort();
+        uniqueTopics.forEach(topic => {
+            const opt = document.createElement('option');
+            opt.value = topic;
+            opt.textContent = topic;
+            topicSelect.appendChild(opt);
         });
 
         function inferDifficulty(question) {
-
-            const text =
-                question.text.toLowerCase();
-
-            if (
-                text.includes('complexidade')
-                || text.includes('big o')
-                || text.includes('árvore')
-                || text.includes('heap')
-                || text.includes('dfs')
-                || text.includes('bfs')
-                || text.includes('programação dinâmica')
-                || text.includes('dynamic programming')
-                || text.includes('dijkstra')
-                || text.includes('concorrência')
-                || text.includes('deadlock')
-            ) {
-
-                return 'hard';
-            }
-
-            if (
-                text.includes('queue')
-                || text.includes('stack')
-                || text.includes('hash')
-                || text.includes('api')
-                || text.includes('rest')
-                || text.includes('microservices')
-                || text.includes('docker')
-                || text.includes('kafka')
-                || text.includes('rabbitmq')
-            ) {
-
-                return 'medium';
-            }
-
+            const text = question.text.toLowerCase();
+            if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('bfs') || text.includes('programação dinâmica') || text.includes('dynamic programming') || text.includes('dijkstra') || text.includes('concorrência') || text.includes('deadlock')) return 'hard';
+            if (text.includes('queue') || text.includes('stack') || text.includes('hash') || text.includes('api') || text.includes('rest') || text.includes('microservices') || text.includes('docker') || text.includes('kafka') || text.includes('rabbitmq')) return 'medium';
             return 'easy';
         }
 
-        function shuffleArray(array) {
-
-            const newArray = [...array];
-
-            for (
-                let i = newArray.length - 1;
-                i > 0;
-                i--
-            ) {
-
-                const j =
-                    Math.floor(
-                        Math.random() * (i + 1)
-                    );
-
-                [newArray[i], newArray[j]] =
-                    [newArray[j], newArray[i]];
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
             }
-
-            return newArray;
+            return a;
         }
 
-        function startQuiz() {
+        function updateStats() {
+            const answeredCountVal = currentIndex + 1;
+            let percent = 0;
+            if (gameMode === 'normal' || gameMode === 'hardcore') {
+                percent = answeredCountVal > 0 ? Math.round((score / answeredCountVal) * 100) : 0;
+            } else {
+                percent = totalPossibleScore > 0 ? Math.round((weightedScore / totalPossibleScore) * 100) : 0;
+            }
+            document.getElementById('answeredCount').innerText = answeredCountVal;
+            document.getElementById('wrongCount').innerText = wrongCount;
+            document.getElementById('percentage').innerText = percent;
+            document.getElementById('streak').innerText = streak;
+            if (shuffledQuestions[currentIndex]) {
+                const diffLocal = inferDifficulty(shuffledQuestions[currentIndex]);
+                document.getElementById('difficulty').innerHTML = diffLocal === 'hard' ? '🔥 Dificuldade: HARD' : (diffLocal === 'medium' ? '⚡ Dificuldade: MÉDIO' : '🍃 Dificuldade: FÁCIL');
+            } else {
+                document.getElementById('difficulty').innerHTML = '🎯 QUIZ ATIVO';
+            }
+        }
 
-            gameMode =
-                document.getElementById('modeSelect').value;
-
-            const selectedTopic =
-                topicSelect.value;
-
-            filteredQuestions =
-                selectedTopic
-                    ? questions.filter(
-                        q => q.topic === selectedTopic
-                    )
-                    : questions;
-
-            shuffledQuestions =
-                shuffleArray(filteredQuestions);
-
-            currentIndex = 0;
-
-            score = 0;
-            streak = 0;
-            wrongCount = 0;
-
-            weightedScore = 0;
-            totalPossibleScore = 0;
-
-            answered = false;
-
-            lives = 3;
-
-            document
-                .getElementById('quizSection')
-                .classList.remove('hidden');
-
-            document
-                .getElementById('resultSection')
-                .classList.remove('show');
-
-            updateStats();
-
-            loadQuestion();
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / shuffledQuestions.length) * 100;
+            const fillEl = document.getElementById('progressFill');
+            if (fillEl) fillEl.style.width = `${progress}%`;
+            document.getElementById('progressText').innerText = `${currentIndex + 1}/${shuffledQuestions.length}`;
         }
 
         function loadQuestion() {
-
-            const q =
-                shuffledQuestions[currentIndex];
-
+            const q = shuffledQuestions[currentIndex];
             if (!q) return;
-
-            document
-                .getElementById('topic')
-                .textContent =
-                `📘 ${q.topic}`;
-
-            document
-                .getElementById('question')
-                .textContent =
-                q.text;
-
+            document.getElementById('topic').innerHTML = `📘 ${q.topic}`;
+            document.getElementById('question').innerText = q.text;
             if (gameMode === 'hardcore') {
-
-                document
-                    .getElementById('lives')
-                    .innerHTML =
-                    '❤️'.repeat(lives);
-
+                const livesHtml = '❤️'.repeat(lives) + (lives <= 0 ? '💀' : '');
+                document.getElementById('lives').innerHTML = livesHtml;
             } else {
-
-                document
-                    .getElementById('lives')
-                    .innerHTML = '';
+                document.getElementById('lives').innerHTML = '';
             }
-
-            document
-                .getElementById('feedback')
-                .classList.remove(
-                    'show',
-                    'correct',
-                    'incorrect'
-                );
-
-            document
-                .getElementById('buttons')
-                .style.display = 'grid';
-
-            document
-                .getElementById('nextBtn')
-                .classList.remove('show');
-
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.classList.add('hidden');
+            feedbackDiv.classList.remove('border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
+            document.getElementById('buttons').style.display = 'grid';
+            document.getElementById('nextBtn').classList.add('hidden');
             answered = false;
-
             updateProgress();
+            updateStats();
         }
 
         function answer(userAnswer) {
-
             if (answered) return;
-
             answered = true;
-
-            const q =
-                shuffledQuestions[currentIndex];
-
-            const isCorrect =
-                userAnswer === q.answer;
-
-            const difficulty =
-                inferDifficulty(q);
-
-            const weight =
-                difficultyWeights[difficulty] || 2;
+            const q = shuffledQuestions[currentIndex];
+            const isCorrect = (userAnswer === q.answer);
+            const difficulty = inferDifficulty(q);
+            const weight = difficultyWeights[difficulty] || 2;
 
             totalPossibleScore += weight;
 
             if (gameMode === 'normal') {
-
+                if (isCorrect) { score++; streak++; }
+                else { wrongCount++; streak = 0; }
+            }
+            else if (gameMode === 'enem') {
                 if (isCorrect) {
-
-                    score++;
-                    streak++;
-
-                } else {
-
-                    wrongCount++;
-                    streak = 0;
-                }
-
-            } else if (gameMode === 'enem') {
-
-                if (isCorrect) {
-
                     weightedScore += weight;
-
                     score++;
                     streak++;
-
                 } else {
-
                     wrongCount++;
                     streak = 0;
-
-                    if (difficulty === 'easy') {
-
-                        weightedScore -= 1;
-
-                    } else if (difficulty === 'medium') {
-
-                        weightedScore -= 0.5;
-                    }
-
-                    if (weightedScore < 0) {
-                        weightedScore = 0;
-                    }
+                    if (difficulty === 'easy') weightedScore -= 1;
+                    else if (difficulty === 'medium') weightedScore -= 0.5;
+                    if (weightedScore < 0) weightedScore = 0;
                 }
-
-            } else if (gameMode === 'hardcore') {
-
+            }
+            else if (gameMode === 'hardcore') {
                 if (isCorrect) {
-
                     score++;
                     streak++;
-
                 } else {
-
                     wrongCount++;
                     streak = 0;
-
                     lives--;
-
                     if (lives <= 0) {
-
                         showResults(true);
-
                         return;
                     }
                 }
             }
 
-            const feedback =
-                document.getElementById('feedback');
-
-            feedback.classList.add(
-                'show',
-                isCorrect
-                    ? 'correct'
-                    : 'incorrect'
-            );
-
-            document
-                .getElementById('feedbackIcon')
-                .textContent =
-                isCorrect ? '✓' : '✗';
-
-            document
-                .getElementById('feedbackTitle')
-                .textContent =
-                isCorrect
-                    ? 'Correto!'
-                    : 'Incorreto!';
-
-            document
-                .getElementById('feedbackText')
-                .innerHTML =
-                `
-        ${q.explanation}
-        `;
-
-            document
-                .getElementById('buttons')
-                .style.display = 'none';
-
-            document
-                .getElementById('nextBtn')
-                .classList.add('show');
-
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.classList.remove('hidden', 'border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
+            if (isCorrect) {
+                feedbackDiv.classList.add('border-l-emerald-500', 'bg-emerald-950/30');
+                document.getElementById('feedbackIcon').innerHTML = '✓';
+                document.getElementById('feedbackTitle').innerHTML = 'Correto!';
+            } else {
+                feedbackDiv.classList.add('border-l-rose-500', 'bg-rose-950/30');
+                document.getElementById('feedbackIcon').innerHTML = '✗';
+                document.getElementById('feedbackTitle').innerHTML = 'Incorreto!';
+            }
+            document.getElementById('feedbackText').innerHTML = q.explanation;
+            document.getElementById('buttons').style.display = 'none';
+            document.getElementById('nextBtn').classList.remove('hidden');
             updateStats();
         }
 
-        function updateStats() {
-
-            const answeredCount =
-                currentIndex + 1;
-
-            let percentage = 0;
-
-            if (
-                gameMode === 'normal'
-                || gameMode === 'hardcore'
-            ) {
-
-                percentage =
-                    answeredCount > 0
-                        ? Math.round(
-                            (score / answeredCount) * 100
-                        )
-                        : 0;
-
-            } else {
-
-                percentage =
-                    totalPossibleScore > 0
-                        ? Math.round(
-                            (
-                                weightedScore
-                                / totalPossibleScore
-                            ) * 100
-                        )
-                        : 0;
-            }
-
-            document
-                .getElementById('answeredCount')
-                .textContent =
-                answeredCount;
-
-            document
-                .getElementById('wrongCount')
-                .textContent =
-                wrongCount;
-
-            document
-                .getElementById('percentage')
-                .textContent =
-                percentage;
-
-            document
-                .getElementById('streak')
-                .textContent =
-                streak;
-        }
-
-        function updateProgress() {
-
-            const progress =
-                (
-                    (currentIndex + 1)
-                    / shuffledQuestions.length
-                ) * 100;
-
-            document
-                .getElementById('progressFill')
-                .style.width =
-                `${progress}%`;
-
-            document
-                .getElementById('progressText')
-                .textContent =
-                `${currentIndex + 1}/${shuffledQuestions.length}`;
-        }
-
         function nextQuestion() {
-
             currentIndex++;
-
-            if (
-                currentIndex >=
-                shuffledQuestions.length
-            ) {
-
-                showResults();
-
+            if (currentIndex >= shuffledQuestions.length) {
+                showResults(false);
                 return;
             }
-
             loadQuestion();
         }
 
         function showResults(gameOver = false) {
-
             let percentage = 0;
-
             if (gameMode === 'enem') {
-
-                percentage =
-                    totalPossibleScore > 0
-                        ? Math.round(
-                            (
-                                weightedScore
-                                / totalPossibleScore
-                            ) * 100
-                        )
-                        : 0;
-
+                percentage = totalPossibleScore > 0 ? Math.round((weightedScore / totalPossibleScore) * 100) : 0;
             } else {
-
-                percentage =
-                    Math.round(
-                        (score / shuffledQuestions.length) * 100
-                    );
+                percentage = Math.round((score / shuffledQuestions.length) * 100);
             }
-
-            let emoji = '📚';
-            let message = 'Continue estudando!';
-
+            let emoji = '📚', message = 'Continue estudando!';
             if (gameOver) {
-
                 emoji = '💀';
-
-                message =
-                    'Você perdeu todas as vidas no Hardcore!';
-
+                message = `Você perdeu todas as vidas no Hardcore! Acertou ${score} de ${shuffledQuestions.length}.`;
             } else if (percentage === 100) {
-
                 emoji = '🏆';
-                message = 'Perfeito!';
-
+                message = 'Perfeito! Domínio total.';
             } else if (percentage >= 80) {
-
                 emoji = '🔥';
-                message = 'Muito bom!';
-
+                message = 'Muito bom! Quase lá.';
             } else if (percentage >= 60) {
-
                 emoji = '👍';
-                message = 'Bom desempenho!';
+                message = 'Bom desempenho! Reforce os tópicos.';
+            } else {
+                emoji = '📖';
+                message = 'Tente novamente, você irá melhorar!';
             }
-
-            document
-                .getElementById('quizSection')
-                .classList.add('hidden');
-
-            document
-                .getElementById('resultSection')
-                .classList.add('show');
-
-            document
-                .getElementById('resultEmoji')
-                .textContent =
-                emoji;
-
-            document
-                .getElementById('finalScore')
-                .textContent =
-                `${percentage}%`;
-
-            document
-                .getElementById('finalCorrect')
-                .textContent =
-                score;
-
-            document
-                .getElementById('finalPercentage')
-                .textContent =
-                `${percentage}%`;
-
-            document
-                .getElementById('resultMessage')
-                .textContent =
-                `${message} Você acertou ${score} de ${shuffledQuestions.length} questões!`;
+            document.getElementById('resultEmoji').innerText = emoji;
+            document.getElementById('finalScore').innerText = `${percentage}%`;
+            document.getElementById('finalCorrect').innerText = score;
+            document.getElementById('finalPercentage').innerText = `${percentage}%`;
+            document.getElementById('resultMessage').innerHTML = `${message} <br/> <span class="text-sm text-slate-400">${score} acertos de ${shuffledQuestions.length} questões</span>`;
+            quizSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
         }
 
         function restart() {
-
-            document
-                .getElementById('resultSection')
-                .classList.remove('show');
-
+            resultSection.classList.add('hidden');
             startQuiz();
         }
 
-        window.startQuiz = startQuiz;
+        window.startQuiz = function () {
+            gameMode = modeSelect.value;
+            const selectedTopic = topicSelect.value;
+            filteredQuestions = selectedTopic ? allQuestions.filter(q => q.topic === selectedTopic) : allQuestions;
+            if (filteredQuestions.length === 0) {
+                alert("Nenhuma questão encontrada para este tópico. Tente 'Todos os assuntos'.");
+                return;
+            }
+            shuffledQuestions = shuffleArray(filteredQuestions);
+            currentIndex = 0;
+            score = 0;
+            streak = 0;
+            wrongCount = 0;
+            weightedScore = 0;
+            totalPossibleScore = 0;
+            lives = 3;
+            answered = false;
+            quizSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+            loadQuestion();
+        };
+
         window.answer = answer;
         window.nextQuestion = nextQuestion;
         window.restart = restart;
-
     </script>
-
 </body>
 
 </html>
