@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Quiz - Estruturas de Dados</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0f172a;
+            --card: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.1);
+
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+
+            --success: #10b981;
+            --danger: #ef4444;
+
+            --text: #f8fafc;
+            --muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+
+            background:
+                radial-gradient(circle at top left, #312e81 0%, transparent 30%),
+                radial-gradient(circle at bottom right, #1e1b4b 0%, transparent 35%),
+                linear-gradient(135deg, #020617 0%, #0f172a 100%);
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+
+            color: var(--text);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+
+            background: rgba(15, 23, 42, .72);
+
+            border: 1px solid var(--border);
+
+            backdrop-filter: blur(18px);
+
+            border-radius: 30px;
+
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 40px;
+
+            border-bottom: 1px solid var(--border);
+
+            background:
+                linear-gradient(135deg,
+                    rgba(99, 102, 241, .18),
+                    rgba(129, 140, 248, .08));
+        }
+
+        .header h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .filter-box {
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 24px;
+
+            padding: 24px;
+
+            margin-bottom: 28px;
+        }
+
+        .filter-box h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .filter-box p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 14px;
+        }
+
+        .topic-select {
+            flex: 1;
+
+            background: rgba(255, 255, 255, .06);
+
+            border: 1px solid rgba(255, 255, 255, .1);
+
+            border-radius: 16px;
+
+            color: white;
+
+            padding: 16px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+        .topic-select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-start,
+        .btn-next,
+        .btn-restart {
+            border: none;
+
+            background:
+                linear-gradient(135deg,
+                    var(--primary),
+                    var(--primary-light));
+
+            color: white;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .2s ease;
+        }
+
+        .btn-start:hover,
+        .btn-next:hover,
+        .btn-restart:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-start {
+            padding: 16px 22px;
+            border-radius: 16px;
+        }
+
+        .quiz-section.hidden {
+            display: none;
+        }
+
+        .progress-wrapper {
+            margin-bottom: 26px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+
+            color: var(--muted);
+
+            margin-bottom: 10px;
+
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+
+            background: rgba(255, 255, 255, .06);
+
+            border-radius: 999px;
+
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+
+            width: 0%;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(90deg,
+                    var(--primary),
+                    #8b5cf6);
+
+            transition: .3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 16px;
+
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 22px;
+
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+
+            font-size: 13px;
+
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .question-card {
+            background:
+                linear-gradient(135deg,
+                    rgba(255, 255, 255, .06),
+                    rgba(255, 255, 255, .03));
+
+            border: 1px solid var(--border);
+
+            border-radius: 28px;
+
+            padding: 34px;
+
+            margin-bottom: 22px;
+        }
+
+        .topic-badge {
+            display: inline-block;
+
+            background:
+                rgba(99, 102, 241, .18);
+
+            color: #c7d2fe;
+
+            padding: 10px 16px;
+
+            border-radius: 999px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 28px;
+
+            line-height: 1.5;
+
+            font-weight: 700;
+        }
+
+        .buttons {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 16px;
+
+            margin-bottom: 22px;
+        }
+
+        .btn {
+            border: none;
+
+            border-radius: 22px;
+
+            padding: 22px;
+
+            color: white;
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-true {
+            background:
+                linear-gradient(135deg,
+                    #059669,
+                    #10b981);
+        }
+
+        .btn-false {
+            background:
+                linear-gradient(135deg,
+                    #dc2626,
+                    #ef4444);
+        }
+
+        .feedback {
+            display: none;
+
+            padding: 24px;
+
+            border-radius: 24px;
+
+            margin-bottom: 22px;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(16, 185, 129, .12);
+            border: 1px solid rgba(16, 185, 129, .25);
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, .12);
+            border: 1px solid rgba(239, 68, 68, .25);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 18px;
+            font-weight: 700;
+
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            line-height: 1.7;
+        }
+
+        .btn-next {
+            width: 100%;
+
+            padding: 18px;
+
+            border-radius: 18px;
+
+            display: none;
+        }
+
+        .btn-next.show {
+            display: block;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .result-emoji {
+            font-size: 90px;
+            margin-bottom: 14px;
+        }
+
+        .result-score {
+            font-size: 70px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .result-message {
+            color: var(--muted);
+            font-size: 18px;
+            margin-bottom: 28px;
+        }
+
+        .result-details {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 16px;
+
+            margin-bottom: 24px;
+        }
+
+        .result-detail {
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 22px;
+
+            padding: 24px;
+        }
+
+        .result-detail-label {
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .result-detail-value {
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .btn-restart {
+            width: 100%;
+
+            padding: 18px;
+
+            border-radius: 18px;
+        }
+
+        @media (max-width: 768px) {
+
+            .stats-grid,
+            .buttons,
+            .result-details,
+            .filter-row {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .question-text {
+                font-size: 22px;
+            }
+
+            .content {
+                padding: 22px;
+            }
+
+            .question-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>🧠 Estruturas de Dados</h1>
+
+            <p>
+                Estude Pilhas, Filas, HashMap,
+                Árvores e muito mais.
+            </p>
+        </div>
+
+        <div class="content">
+
+            <!-- FILTER -->
+            <div class="filter-box">
+
+                <h3>Escolha um assunto</h3>
+
+                <p>
+                    Se não selecionar nada,
+                    todas as questões serão usadas.
+                </p>
+
+                <div class="filter-row">
+
+                    <select id="topicSelect" class="topic-select">
+                        <option value="">
+                            Todos os assuntos
+                        </option>
+                    </select>
+
+                    <button class="btn-start" onclick="startQuiz()">
+                        🚀 Iniciar Quiz
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- QUIZ -->
+            <div id="quizSection" class="quiz-section hidden">
+
+                <!-- PROGRESS -->
+                <div class="progress-wrapper">
+
+                    <div class="progress-header">
+                        <span>Progresso</span>
+
+                        <span id="progressText">
+                            0/0
+                        </span>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            Total respondido
+                        </div>
+
+                        <div class="stat-value">
+                            <span id="answeredCount">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            Erros
+                        </div>
+
+                        <div class="stat-value">
+                            <span id="wrongCount">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            Acertos
+                        </div>
+
+                        <div class="stat-value">
+                            <span id="percentage">0</span>%
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            Sequência sem errar
+                        </div>
+
+                        <div class="stat-value">
+                            <span id="streak">0</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- QUESTION -->
+                <div class="question-card">
+
+                    <div id="topic" class="topic-badge">
+                        📘 Pilhas
+                    </div>
+
+                    <div id="question" class="question-text">
+                        Pergunta...
+                    </div>
+                </div>
+
+                <!-- FEEDBACK -->
+                <div id="feedback" class="feedback">
+
+                    <div class="feedback-header">
+                        <span id="feedbackIcon">✓</span>
+
+                        <span id="feedbackTitle">
+                            Correto!
+                        </span>
+                    </div>
+
+                    <div id="feedbackText" class="feedback-text"></div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div id="buttons" class="buttons">
+
+                    <button class="btn btn-true" onclick="answer(true)">
+                        ✓ Verdadeiro
+                    </button>
+
+                    <button class="btn btn-false" onclick="answer(false)">
+                        ✗ Falso
+                    </button>
+
+                </div>
+
+                <button id="nextBtn" class="btn-next" onclick="nextQuestion()">
+                    Próxima questão →
+                </button>
+
+            </div>
+
+            <!-- RESULT -->
+            <div id="resultSection" class="result-screen">
+
+                <div id="resultEmoji" class="result-emoji">
+                    🎉
+                </div>
+
+                <div id="finalScore" class="result-score">
+                    0
+                </div>
+
+                <div id="resultMessage" class="result-message">
+                    Resultado
+                </div>
+
+                <div class="result-details">
+
+                    <div class="result-detail">
+
+                        <div class="result-detail-label">
+                            Acertos
+                        </div>
+
+                        <div id="finalCorrect" class="result-detail-value">
+                            0
+                        </div>
+                    </div>
+
+                    <div class="result-detail">
+
+                        <div class="result-detail-label">
+                            Taxa de acerto
+                        </div>
+
+                        <div id="finalPercentage" class="result-detail-value">
+                            0%
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="btn-restart" onclick="restart()">
+                    🔄 Jogar novamente
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            stackQuestions,
+            queueQuestions,
+            linkedListQuestions,
+            graphQuestions,
+            hashTableQuestions,
+            heapQuestions,
+            orderingQuestions,
+            searchQuestions,
+            appealQuestions,
+            dynamicProgrammingQuestions,
+            complexityBigOQuestions,
+            advancedStructuresQuestions,
+            treesQuestions
+        } from './questoes/data-struct/index.js'
+
+        import {
+            microservicesQuestions,
+            tddQuestions,
+            dddQuestions,
+            cleanCodeQuestions,
+            cleanArchQuestions
+        } from './questoes/arch/index.js';
+
+        import {
+            javaQuestions,
+            phpQuestions,
+            pythonQuestions,
+            golangQuestions
+        } from './questoes/backend/index.js';
+
+        import {
+            awsQuestions,
+            gcpQuestions
+        } from './questoes/cloud/index.js';
+
+        import {
+            javascriptQuestions,
+            typescriptQuestions
+        } from './questoes/frontend/index.js';
+
+        import {
+            rabbitMqQuestions,
+            kafkaQuestions
+        } from './questoes/message/index.js';
+
+
+        const questions = [
+
+            ...stackQuestions,
+            ...queueQuestions,
+            ...linkedListQuestions,
+            ...graphsQuestions,
+            ...hashTableQuestions,
+            ...heapQuestions,
+            ...orderingQuestions,
+            ...searchQuestions,
+            ...appealQuestions,
+            ...dynamicProgrammingQuestions,
+            ...complexityBigOQuestions,
+            ...advancedStructuresQuestions,
+            ...treesQuestions,
+
+            ...tddQuestions,
+            ...dddQuestions,
+            ...cleanArchQuestions,
+            ...cleanCodeQuestions,
+
+            ...microservicesQuestions,
+            ...rabbitMqQuestions,
+            ...kafkaQuestions,
+
+            ...gcpQuestions,
+            ...awsQuestions,
+
+            ...javaQuestions,
+            ...pythonQuestions,
+            ...phpQuestions,
+            ...javascriptQuestions,
+            ...typescriptQuestions,
+            ...golangQuestions,
+
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let wrongCount = 0;
+        let answered = false;
+
+        let shuffledQuestions = [];
+        let filteredQuestions = [];
+
+        const topicSelect =
+            document.getElementById('topicSelect');
+
+        const topics = [
+            ...new Set(
+                questions.map(q => q.topic)
+            )
+        ].sort();
+
+        topics.forEach(topic => {
+
+            const option =
+                document.createElement('option');
+
+            option.value = topic;
+            option.textContent = topic;
+
+            topicSelect.appendChild(option);
+
+        });
+
+        function shuffleArray(array) {
+
+            const newArray = [...array];
+
+            for (
+                let i = newArray.length - 1;
+                i > 0;
+                i--
+            ) {
+
+                const j =
+                    Math.floor(
+                        Math.random() * (i + 1)
+                    );
+
+                [newArray[i], newArray[j]] =
+                    [newArray[j], newArray[i]];
+            }
+
+            return newArray;
+        }
+
+        function startQuiz() {
+
+            const selectedTopic =
+                topicSelect.value;
+
+            filteredQuestions =
+                selectedTopic
+                    ? questions.filter(
+                        q => q.topic === selectedTopic
+                    )
+                    : questions;
+
+            shuffledQuestions =
+                shuffleArray(filteredQuestions);
+
+            currentIndex = 0;
+            score = 0;
+            streak = 0;
+            wrongCount = 0;
+            answered = false;
+
+            document
+                .getElementById('quizSection')
+                .classList.remove('hidden');
+
+            document
+                .getElementById('resultSection')
+                .classList.remove('show');
+
+            updateStats();
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+
+            const q =
+                shuffledQuestions[currentIndex];
+
+            if (!q) return;
+
+            document
+                .getElementById('topic')
+                .textContent =
+                `📘 ${q.topic}`;
+
+            document
+                .getElementById('question')
+                .textContent =
+                q.text;
+
+            document
+                .getElementById('feedback')
+                .classList.remove(
+                    'show',
+                    'correct',
+                    'incorrect'
+                );
+
+            document
+                .getElementById('buttons')
+                .style.display = 'grid';
+
+            document
+                .getElementById('nextBtn')
+                .classList.remove('show');
+
+            answered = false;
+
+            updateProgress();
+        }
+
+        function answer(userAnswer) {
+
+            if (answered) return;
+
+            answered = true;
+
+            const q =
+                shuffledQuestions[currentIndex];
+
+            const isCorrect =
+                userAnswer === q.answer;
+
+            if (isCorrect) {
+
+                score++;
+                streak++;
+
+            } else {
+
+                wrongCount++;
+                streak = 0;
+            }
+
+            const feedback =
+                document.getElementById('feedback');
+
+            feedback.classList.add(
+                'show',
+                isCorrect
+                    ? 'correct'
+                    : 'incorrect'
+            );
+
+            document
+                .getElementById('feedbackIcon')
+                .textContent =
+                isCorrect ? '✓' : '✗';
+
+            document
+                .getElementById('feedbackTitle')
+                .textContent =
+                isCorrect
+                    ? 'Correto!'
+                    : 'Incorreto!';
+
+            document
+                .getElementById('feedbackText')
+                .textContent =
+                q.explanation;
+
+            document
+                .getElementById('buttons')
+                .style.display = 'none';
+
+            document
+                .getElementById('nextBtn')
+                .classList.add('show');
+
+            updateStats();
+        }
+
+        function updateStats() {
+
+            const answeredCount =
+                currentIndex + 1;
+
+            const percentage =
+                answeredCount > 0
+                    ? Math.round(
+                        (score / answeredCount) * 100
+                    )
+                    : 0;
+
+            document
+                .getElementById('answeredCount')
+                .textContent =
+                answeredCount;
+
+            document
+                .getElementById('wrongCount')
+                .textContent =
+                wrongCount;
+
+            document
+                .getElementById('percentage')
+                .textContent =
+                percentage;
+
+            document
+                .getElementById('streak')
+                .textContent =
+                streak;
+        }
+
+        function updateProgress() {
+
+            const progress =
+                (
+                    (currentIndex + 1)
+                    / shuffledQuestions.length
+                ) * 100;
+
+            document
+                .getElementById('progressFill')
+                .style.width =
+                `${progress}%`;
+
+            document
+                .getElementById('progressText')
+                .textContent =
+                `${currentIndex + 1}/${shuffledQuestions.length}`;
+        }
+
+        function nextQuestion() {
+
+            currentIndex++;
+
+            if (
+                currentIndex >=
+                shuffledQuestions.length
+            ) {
+
+                showResults();
+
+                return;
+            }
+
+            loadQuestion();
+        }
+
+        function showResults() {
+
+            const percentage =
+                Math.round(
+                    (score / shuffledQuestions.length) * 100
+                );
+
+            let emoji = '📚';
+            let message = 'Continue estudando!';
+
+            if (percentage === 100) {
+
+                emoji = '🏆';
+                message = 'Perfeito!';
+
+            } else if (percentage >= 80) {
+
+                emoji = '🔥';
+                message = 'Muito bom!';
+
+            } else if (percentage >= 60) {
+
+                emoji = '👍';
+                message = 'Bom desempenho!';
+            }
+
+            document
+                .getElementById('quizSection')
+                .classList.add('hidden');
+
+            document
+                .getElementById('resultSection')
+                .classList.add('show');
+
+            document
+                .getElementById('resultEmoji')
+                .textContent =
+                emoji;
+
+            document
+                .getElementById('finalScore')
+                .textContent =
+                `${percentage}%`;
+
+            document
+                .getElementById('finalCorrect')
+                .textContent =
+                score;
+
+            document
+                .getElementById('finalPercentage')
+                .textContent =
+                `${percentage}%`;
+
+            document
+                .getElementById('resultMessage')
+                .textContent =
+                `${message} Você acertou ${score} de ${shuffledQuestions.length} questões!`;
+        }
+
+        function restart() {
+
+            document
+                .getElementById('resultSection')
+                .classList.remove('show');
+
+            startQuiz();
+        }
+
+        window.startQuiz = startQuiz;
+        window.answer = answer;
+        window.nextQuestion = nextQuestion;
+        window.restart = restart;
+
+    </script>
+
+</body>
+
+</html>
