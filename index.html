@@ -873,6 +873,46 @@
 
         });
 
+        function inferDifficulty(question) {
+
+            const text =
+                question.text.toLowerCase();
+
+            if (
+                text.includes('complexidade')
+                || text.includes('big o')
+                || text.includes('árvore')
+                || text.includes('heap')
+                || text.includes('dfs')
+                || text.includes('bfs')
+                || text.includes('programação dinâmica')
+                || text.includes('dynamic programming')
+                || text.includes('dijkstra')
+                || text.includes('concorrência')
+                || text.includes('deadlock')
+            ) {
+
+                return 'hard';
+            }
+
+            if (
+                text.includes('queue')
+                || text.includes('stack')
+                || text.includes('hash')
+                || text.includes('api')
+                || text.includes('rest')
+                || text.includes('microservices')
+                || text.includes('docker')
+                || text.includes('kafka')
+                || text.includes('rabbitmq')
+            ) {
+
+                return 'medium';
+            }
+
+            return 'easy';
+        }
+
         function shuffleArray(array) {
 
             const newArray = [...array];
@@ -956,14 +996,6 @@
                 .textContent =
                 q.text;
 
-            const difficulty =
-                q.difficulty || 'medium';
-
-            document
-                .getElementById('difficulty')
-                .textContent =
-                `🔥 ${difficulty.toUpperCase()}`;
-
             if (gameMode === 'hardcore') {
 
                 document
@@ -1012,7 +1044,7 @@
                 userAnswer === q.answer;
 
             const difficulty =
-                q.difficulty || 'medium';
+                inferDifficulty(q);
 
             const weight =
                 difficultyWeights[difficulty] || 2;
@@ -1109,10 +1141,8 @@
                 .getElementById('feedbackText')
                 .innerHTML =
                 `
-                <strong>Dificuldade:</strong> ${difficulty.toUpperCase()}
-                <br><br>
-                ${q.explanation}
-                `;
+        ${q.explanation}
+        `;
 
             document
                 .getElementById('buttons')
