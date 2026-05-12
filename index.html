@@ -507,8 +507,7 @@
                 <h3>Escolha um assunto</h3>
 
                 <p>
-                    Se não selecionar nada,
-                    todas as questões serão usadas.
+                    Escolha um modo de jogo e comece o quiz.
                 </p>
 
                 <div class="filter-row">
@@ -519,11 +518,28 @@
                         </option>
                     </select>
 
+                    <select id="modeSelect" class="topic-select">
+
+                        <option value="normal">
+                            🎯 Normal
+                        </option>
+
+                        <option value="enem">
+                            🧠 ENEM
+                        </option>
+
+                        <option value="hardcore">
+                            💀 Hardcore
+                        </option>
+
+                    </select>
+
                     <button class="btn-start" onclick="startQuiz()">
                         🚀 Iniciar Quiz
                     </button>
 
                 </div>
+
             </div>
 
             <!-- QUIZ -->
@@ -533,22 +549,28 @@
                 <div class="progress-wrapper">
 
                     <div class="progress-header">
-                        <span>Progresso</span>
+
+                        <span>
+                            Progresso
+                        </span>
 
                         <span id="progressText">
                             0/0
                         </span>
+
                     </div>
 
                     <div class="progress-bar">
                         <div id="progressFill" class="progress-fill"></div>
                     </div>
+
                 </div>
 
                 <!-- STATS -->
                 <div class="stats-grid">
 
                     <div class="stat-card">
+
                         <div class="stat-label">
                             Total respondido
                         </div>
@@ -556,9 +578,11 @@
                         <div class="stat-value">
                             <span id="answeredCount">0</span>
                         </div>
+
                     </div>
 
                     <div class="stat-card">
+
                         <div class="stat-label">
                             Erros
                         </div>
@@ -566,27 +590,53 @@
                         <div class="stat-value">
                             <span id="wrongCount">0</span>
                         </div>
+
                     </div>
 
                     <div class="stat-card">
+
                         <div class="stat-label">
-                            Acertos
+                            Pontuação
                         </div>
 
                         <div class="stat-value">
                             <span id="percentage">0</span>%
                         </div>
+
                     </div>
 
                     <div class="stat-card">
+
                         <div class="stat-label">
-                            Sequência sem errar
+                            Sequência
                         </div>
 
                         <div class="stat-value">
                             <span id="streak">0</span>
                         </div>
+
                     </div>
+
+                </div>
+
+                <!-- EXTRA INFO -->
+                <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        margin-bottom:20px;
+                        gap:10px;
+                        flex-wrap:wrap;
+                    ">
+
+                    <div id="difficulty" class="topic-badge">
+                        MEDIUM
+                    </div>
+
+                    <div id="lives" style="
+                            font-size:24px;
+                            font-weight:700;
+                        "></div>
 
                 </div>
 
@@ -600,20 +650,26 @@
                     <div id="question" class="question-text">
                         Pergunta...
                     </div>
+
                 </div>
 
                 <!-- FEEDBACK -->
                 <div id="feedback" class="feedback">
 
                     <div class="feedback-header">
-                        <span id="feedbackIcon">✓</span>
+
+                        <span id="feedbackIcon">
+                            ✓
+                        </span>
 
                         <span id="feedbackTitle">
                             Correto!
                         </span>
+
                     </div>
 
                     <div id="feedbackText" class="feedback-text"></div>
+
                 </div>
 
                 <!-- BUTTONS -->
@@ -661,17 +717,19 @@
                         <div id="finalCorrect" class="result-detail-value">
                             0
                         </div>
+
                     </div>
 
                     <div class="result-detail">
 
                         <div class="result-detail-label">
-                            Taxa de acerto
+                            Pontuação final
                         </div>
 
                         <div id="finalPercentage" class="result-detail-value">
                             0%
                         </div>
+
                     </div>
 
                 </div>
@@ -686,6 +744,7 @@
     </div>
 
     <script type="module">
+
         import {
             stackQuestions,
             queueQuestions,
@@ -700,7 +759,7 @@
             complexityBigOQuestions,
             advancedStructuresQuestions,
             treeQuestions
-        } from './questoes/data-struct/index.js'
+        } from './questoes/data-struct/index.js';
 
         import {
             microservicesQuestions,
@@ -731,7 +790,6 @@
             rabbitMqQuestions,
             kafkaQuestions
         } from './questoes/message/index.js';
-
 
         const questions = [
 
@@ -771,13 +829,28 @@
         ];
 
         let currentIndex = 0;
+
         let score = 0;
         let streak = 0;
         let wrongCount = 0;
+
         let answered = false;
 
         let shuffledQuestions = [];
         let filteredQuestions = [];
+
+        let gameMode = 'normal';
+
+        let lives = 3;
+
+        let weightedScore = 0;
+        let totalPossibleScore = 0;
+
+        const difficultyWeights = {
+            easy: 1,
+            medium: 2,
+            hard: 4
+        };
 
         const topicSelect =
             document.getElementById('topicSelect');
@@ -824,6 +897,9 @@
 
         function startQuiz() {
 
+            gameMode =
+                document.getElementById('modeSelect').value;
+
             const selectedTopic =
                 topicSelect.value;
 
@@ -838,10 +914,17 @@
                 shuffleArray(filteredQuestions);
 
             currentIndex = 0;
+
             score = 0;
             streak = 0;
             wrongCount = 0;
+
+            weightedScore = 0;
+            totalPossibleScore = 0;
+
             answered = false;
+
+            lives = 3;
 
             document
                 .getElementById('quizSection')
@@ -872,6 +955,28 @@
                 .getElementById('question')
                 .textContent =
                 q.text;
+
+            const difficulty =
+                q.difficulty || 'medium';
+
+            document
+                .getElementById('difficulty')
+                .textContent =
+                `🔥 ${difficulty.toUpperCase()}`;
+
+            if (gameMode === 'hardcore') {
+
+                document
+                    .getElementById('lives')
+                    .innerHTML =
+                    '❤️'.repeat(lives);
+
+            } else {
+
+                document
+                    .getElementById('lives')
+                    .innerHTML = '';
+            }
 
             document
                 .getElementById('feedback')
@@ -906,15 +1011,76 @@
             const isCorrect =
                 userAnswer === q.answer;
 
-            if (isCorrect) {
+            const difficulty =
+                q.difficulty || 'medium';
 
-                score++;
-                streak++;
+            const weight =
+                difficultyWeights[difficulty] || 2;
 
-            } else {
+            totalPossibleScore += weight;
 
-                wrongCount++;
-                streak = 0;
+            if (gameMode === 'normal') {
+
+                if (isCorrect) {
+
+                    score++;
+                    streak++;
+
+                } else {
+
+                    wrongCount++;
+                    streak = 0;
+                }
+
+            } else if (gameMode === 'enem') {
+
+                if (isCorrect) {
+
+                    weightedScore += weight;
+
+                    score++;
+                    streak++;
+
+                } else {
+
+                    wrongCount++;
+                    streak = 0;
+
+                    if (difficulty === 'easy') {
+
+                        weightedScore -= 1;
+
+                    } else if (difficulty === 'medium') {
+
+                        weightedScore -= 0.5;
+                    }
+
+                    if (weightedScore < 0) {
+                        weightedScore = 0;
+                    }
+                }
+
+            } else if (gameMode === 'hardcore') {
+
+                if (isCorrect) {
+
+                    score++;
+                    streak++;
+
+                } else {
+
+                    wrongCount++;
+                    streak = 0;
+
+                    lives--;
+
+                    if (lives <= 0) {
+
+                        showResults(true);
+
+                        return;
+                    }
+                }
             }
 
             const feedback =
@@ -941,8 +1107,12 @@
 
             document
                 .getElementById('feedbackText')
-                .textContent =
-                q.explanation;
+                .innerHTML =
+                `
+                <strong>Dificuldade:</strong> ${difficulty.toUpperCase()}
+                <br><br>
+                ${q.explanation}
+                `;
 
             document
                 .getElementById('buttons')
@@ -960,12 +1130,32 @@
             const answeredCount =
                 currentIndex + 1;
 
-            const percentage =
-                answeredCount > 0
-                    ? Math.round(
-                        (score / answeredCount) * 100
-                    )
-                    : 0;
+            let percentage = 0;
+
+            if (
+                gameMode === 'normal'
+                || gameMode === 'hardcore'
+            ) {
+
+                percentage =
+                    answeredCount > 0
+                        ? Math.round(
+                            (score / answeredCount) * 100
+                        )
+                        : 0;
+
+            } else {
+
+                percentage =
+                    totalPossibleScore > 0
+                        ? Math.round(
+                            (
+                                weightedScore
+                                / totalPossibleScore
+                            ) * 100
+                        )
+                        : 0;
+            }
 
             document
                 .getElementById('answeredCount')
@@ -1024,17 +1214,41 @@
             loadQuestion();
         }
 
-        function showResults() {
+        function showResults(gameOver = false) {
 
-            const percentage =
-                Math.round(
-                    (score / shuffledQuestions.length) * 100
-                );
+            let percentage = 0;
+
+            if (gameMode === 'enem') {
+
+                percentage =
+                    totalPossibleScore > 0
+                        ? Math.round(
+                            (
+                                weightedScore
+                                / totalPossibleScore
+                            ) * 100
+                        )
+                        : 0;
+
+            } else {
+
+                percentage =
+                    Math.round(
+                        (score / shuffledQuestions.length) * 100
+                    );
+            }
 
             let emoji = '📚';
             let message = 'Continue estudando!';
 
-            if (percentage === 100) {
+            if (gameOver) {
+
+                emoji = '💀';
+
+                message =
+                    'Você perdeu todas as vidas no Hardcore!';
+
+            } else if (percentage === 100) {
 
                 emoji = '🏆';
                 message = 'Perfeito!';
