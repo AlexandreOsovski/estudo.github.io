@@ -121,42 +121,46 @@
             </div>
         </div>
 
-        <!-- ========== SINGLEPLAYER ========== -->
-        <!-- MENU SINGLEPLAYER - SEM INPUT DE ASSUNTO (escondido por padrão) -->
         <div id="singleplayerMenuSection" class="hidden">
             <div
                 class="px-6 py-8 md:px-10 md:py-10 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent">
                 <h1
                     class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-300 bg-clip-text text-transparent">
-                    🧠 Jogar Sozinho</h1>
-                <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Escolha o modo de dificuldade e comece!
-                </p>
+                    🧠 Estruturas de Dados</h1>
+                <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Pilhas, HashMap, Árvores, Filas, Cloud,
+                    Backend & mais!</p>
             </div>
 
             <div class="p-5 md:p-8">
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 mb-8 backdrop-blur-sm">
-                    <h3 class="text-white font-bold text-lg mb-1">🎯 Configurações do Desafio</h3>
-                    <p class="text-slate-400 text-sm mb-5">Selecione o modo de jogo e comece a responder perguntas
-                        aleatórias!</p>
+                    <h3 class="text-white font-bold text-lg mb-1">🎯 Escolha seu desafio</h3>
+                    <p class="text-slate-400 text-sm mb-5">Digite para filtrar os tópicos. Lista em ordem alfabética.
+                    </p>
 
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <!-- Campo de seleção de modo - SEM INPUT DE TÓPICO -->
+                        <div class="relative flex-1 custom-select-search">
+                            <input type="text" id="singleplayerTopicSearchInput" placeholder="🔍 Pesquisar tópico..."
+                                class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                            <div id="singleplayerTopicDropdown"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl hidden overflow-hidden backdrop-blur-md bg-opacity-95">
+                                <div class="dropdown-list" id="singleplayerTopicDropdownList"></div>
+                            </div>
+                        </div>
+
                         <select id="singleplayerModeSelect"
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                            class="w-full sm:w-56 bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
                             <option value="normal">🎯 Normal</option>
                             <option value="enem">🧠 ENEM</option>
                             <option value="hardcore">💀 Hardcore</option>
                         </select>
 
                         <button onclick="window.startSingleplayer()"
-                            class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold px-8 py-3 rounded-xl transition-all whitespace-nowrap">
-                            🚀 Iniciar Quiz
-                        </button>
+                            class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold px-6 py-3 rounded-xl transition-all whitespace-nowrap">🚀
+                            Iniciar</button>
                     </div>
 
-                    <!-- Badge informativo (sem filtro de tópico) -->
-                    <div id="singleplayerInfoBadge" class="mt-3 text-xs text-indigo-300">
-                        <span class="opacity-80">✨ Modo livre - perguntas aleatórias de TODOS os assuntos!</span>
+                    <div id="singleplayerSelectedBadge" class="mt-3 text-xs text-indigo-300">
+                        <span class="opacity-70">📌 Nenhum filtro aplicado</span>
                     </div>
                 </div>
 
@@ -267,8 +271,7 @@
             </div>
         </div>
 
-        <!-- ========== MULTIPLAYER ========== -->
-        <!-- MENU MULTIPLAYER (com input de tópico) -->
+        <!-- MENU MULTIPLAYER -->
         <div id="multiplayerMenuSection" class="hidden p-5 md:p-8">
             <button onclick="window.backToMainMenu()"
                 class="mb-6 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-xl transition-all text-sm">←
@@ -423,6 +426,7 @@
         ];
 
         let singleplayerState = {
+            selectedTopic: "",
             gameQuestions: [],
             currentIndex: 0,
             score: 0,
@@ -450,9 +454,126 @@
             isCreator: false,
         };
 
-        function generateRoomCode() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
+        let allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
+
+        function setupTopicDropdown(inputId, dropdownId, dropdownListId) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const dropdownList = document.getElementById(dropdownListId);
+
+            function renderTopicDropdown(searchTerm = "") {
+                const term = searchTerm.trim().toLowerCase();
+                let filteredTopics = [];
+                if (term === "") {
+                    filteredTopics = [...allTopicsList];
+                } else {
+                    const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
+                    const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
+                    filteredTopics = [...startsWith, ...contains];
+                }
+
+                if (filteredTopics.length === 0) {
+                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
+                    dropdown.classList.remove('hidden');
+                    return;
+                }
+
+                dropdownList.innerHTML = filteredTopics.map(topic => `
+                    <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic}">
+                        <span class="flex items-center gap-2">📚 ${topic}</span>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll(`#${dropdownListId} .topic-option`).forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        const topicValue = opt.getAttribute('data-topic');
+                        input.value = topicValue;
+
+                        if (inputId === 'singleplayerTopicSearchInput') {
+                            singleplayerState.selectedTopic = topicValue;
+                        } else {
+                            multiplayerState.selectedTopic = topicValue;
+                        }
+
+                        dropdown.classList.add('hidden');
+                    });
+                });
+            }
+
+            input.addEventListener('input', (e) => {
+                renderTopicDropdown(e.target.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            input.addEventListener('focus', () => {
+                renderTopicDropdown(input.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            renderTopicDropdown("");
         }
+
+        setupTopicDropdown('singleplayerTopicSearchInput', 'singleplayerTopicDropdown', 'singleplayerTopicDropdownList');
+        setupTopicDropdown('multiplayerTopicSearchInput', 'multiplayerTopicDropdown', 'multiplayerTopicDropdownList');
+
+        window.showSingleplayerMenu = function () {
+            document.getElementById('mainMenuSection').classList.add('hidden');
+            document.getElementById('singleplayerMenuSection').classList.remove('hidden');
+        };
+
+        window.showMultiplayerMenu = function () {
+            document.getElementById('mainMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerMenuSection').classList.remove('hidden');
+        };
+
+        window.backToMainMenu = function () {
+            clearInterval(singleplayerState.timerInterval || multiplayerState.timerInterval);
+
+            document.getElementById('mainMenuSection').classList.remove('hidden');
+            document.getElementById('singleplayerMenuSection').classList.add('hidden');
+            document.getElementById('singleplayerMenuSection').querySelector('.flex').classList.add('hidden');
+            document.getElementById('singleplayerQuizSection').classList.add('hidden');
+            document.getElementById('singleplayerResultSection').classList.add('hidden');
+            document.getElementById('multiplayerMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerWaitingSection').classList.add('hidden');
+            document.getElementById('multiplayerGameSection').classList.add('hidden');
+            document.getElementById('multiplayerResultSection').classList.add('hidden');
+
+            singleplayerState = {
+                selectedTopic: "",
+                gameQuestions: [],
+                currentIndex: 0,
+                score: 0,
+                streak: 0,
+                wrongCount: 0,
+                answered: false,
+                gameMode: "normal",
+                lives: 3,
+                weightedScore: 0,
+                totalPossibleScore: 0,
+                shuffledQuestions: [],
+            };
+
+            multiplayerState = {
+                currentRoom: null,
+                currentPlayer: null,
+                selectedTopic: "",
+                gameQuestions: [],
+                currentQuestionIndex: 0,
+                playerScores: {},
+                playerAnswered: {},
+                timerInterval: null,
+                timeRemaining: 15,
+                gameActive: false,
+                isCreator: false,
+            };
+        };
 
         function shuffleArray(arr) {
             const a = [...arr];
@@ -463,123 +584,6 @@
             return a;
         }
 
-        function setupMultiplayerTopicDropdown() {
-            const allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
-            const input = document.getElementById('multiplayerTopicSearchInput');
-            const dropdown = document.getElementById('multiplayerTopicDropdown');
-            const dropdownList = document.getElementById('multiplayerTopicDropdownList');
-
-            function renderTopicDropdown(searchTerm = "") {
-                const term = searchTerm.trim().toLowerCase();
-                let filteredTopics = [];
-                if (term === "") {
-                    filteredTopics = [...allTopicsList];
-                } else {
-                    const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
-                    const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
-                    filteredTopics = [...startsWith, ...contains];
-                }
-
-                if (filteredTopics.length === 0) {
-                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
-                    dropdown.classList.remove('hidden');
-                    return;
-                }
-
-                dropdownList.innerHTML = filteredTopics.map(topic => `
-                <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic}">
-                    <span class="flex items-center gap-2">📚 ${topic}</span>
-                </div>
-            `).join('');
-
-                document.querySelectorAll('#multiplayerTopicDropdownList .topic-option').forEach(opt => {
-                    opt.addEventListener('click', () => {
-                        const topicValue = opt.getAttribute('data-topic');
-                        input.value = topicValue;
-                        multiplayerState.selectedTopic = topicValue;
-                        dropdown.classList.add('hidden');
-                    });
-                });
-            }
-
-            input.addEventListener('input', (e) => {
-                renderTopicDropdown(e.target.value);
-                dropdown.classList.remove('hidden');
-            });
-
-            input.addEventListener('focus', () => {
-                renderTopicDropdown(input.value);
-                dropdown.classList.remove('hidden');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-
-            renderTopicDropdown("");
-        }
-
-        function setupSingleplayerTopicDropdown() {
-            const allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
-            const input = document.getElementById('singleplayerTopicSearchInput');
-            const dropdown = document.getElementById('singleplayerTopicDropdown');
-            const dropdownList = document.getElementById('singleplayerTopicDropdownList');
-
-            function renderTopicDropdown(searchTerm = "") {
-                const term = searchTerm.trim().toLowerCase();
-                let filteredTopics = [];
-                if (term === "") {
-                    filteredTopics = [...allTopicsList];
-                } else {
-                    const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
-                    const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
-                    filteredTopics = [...startsWith, ...contains];
-                }
-
-                if (filteredTopics.length === 0) {
-                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
-                    dropdown.classList.remove('hidden');
-                    return;
-                }
-
-                dropdownList.innerHTML = filteredTopics.map(topic => `
-                <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic}">
-                    <span class="flex items-center gap-2">📚 ${topic}</span>
-                </div>
-            `).join('');
-
-                document.querySelectorAll('#singleplayerTopicDropdownList .topic-option').forEach(opt => {
-                    opt.addEventListener('click', () => {
-                        const topicValue = opt.getAttribute('data-topic');
-                        input.value = topicValue;
-                        singleplayerState.selectedTopic = topicValue;
-                        document.getElementById('singleplayerSelectedBadge').innerHTML = `<span class="bg-indigo-500/30 px-3 py-1 rounded-full text-xs">📌 Filtro: ${topicValue}</span>`;
-                        dropdown.classList.add('hidden');
-                    });
-                });
-            }
-
-            input.addEventListener('input', (e) => {
-                renderTopicDropdown(e.target.value);
-                dropdown.classList.remove('hidden');
-            });
-
-            input.addEventListener('focus', () => {
-                renderTopicDropdown(input.value);
-                dropdown.classList.remove('hidden');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-
-            renderTopicDropdown("");
-        }
-
         function inferDifficulty(question) {
             const text = question.text.toLowerCase();
             if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('bfs') || text.includes('programação dinâmica') || text.includes('dijkstra') || text.includes('concorrência') || text.includes('deadlock')) return 'hard';
@@ -587,7 +591,7 @@
             return 'easy';
         }
 
-        function startSingleplayer() {
+        window.startSingleplayer = function () {
             const gameMode = document.getElementById('singleplayerModeSelect').value;
 
             if (!singleplayerState.selectedTopic) {
@@ -612,12 +616,12 @@
             singleplayerState.totalPossibleScore = 0;
             singleplayerState.lives = 3;
 
-            document.getElementById('singleplayerMenuSection').querySelector('.flex')?.classList?.add('hidden');
+            document.getElementById('singleplayerMenuSection').querySelector('.flex').classList.add('hidden');
             document.getElementById('singleplayerQuizSection').classList.remove('hidden');
             document.getElementById('singleplayerResultSection').classList.add('hidden');
 
             singleplayerLoadQuestion();
-        }
+        };
 
         function singleplayerLoadQuestion() {
             const q = singleplayerState.shuffledQuestions[singleplayerState.currentIndex];
@@ -667,7 +671,7 @@
             }
         }
 
-        function singleplayerAnswer(userAnswer) {
+        window.singleplayerAnswer = function (userAnswer) {
             if (singleplayerState.answered) return;
 
             singleplayerState.answered = true;
@@ -727,16 +731,16 @@
             document.getElementById('singleplayerNextBtn').classList.remove('hidden');
 
             singleplayerUpdateStats();
-        }
+        };
 
-        function singleplayerNextQuestion() {
+        window.singleplayerNextQuestion = function () {
             singleplayerState.currentIndex++;
             if (singleplayerState.currentIndex >= 10) {
                 singleplayerShowResults(false);
             } else {
                 singleplayerLoadQuestion();
             }
-        }
+        };
 
         function singleplayerShowResults(gameOver = false) {
             let percentage = 0;
@@ -774,12 +778,16 @@
             document.getElementById('singleplayerResultSection').classList.remove('hidden');
         }
 
-        function singleplayerRestart() {
+        window.singleplayerRestart = function () {
             document.getElementById('singleplayerResultSection').classList.add('hidden');
-            startSingleplayer();
+            window.startSingleplayer();
+        };
+
+        function generateRoomCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
-        function createMultiplayerRoom() {
+        window.createMultiplayerRoom = function () {
             const playerName = document.getElementById('multiplayerPlayerNameCreate').value.trim();
             if (!playerName) {
                 alert('Digite seu nome!');
@@ -808,17 +816,16 @@
                 topic: multiplayerState.selectedTopic,
                 questions: multiplayerState.gameQuestions,
                 players: multiplayerState.playerScores,
-                started: false,
-                createdAt: Date.now()
+                started: false
             }));
 
             document.getElementById('multiplayerMenuSection').classList.add('hidden');
             document.getElementById('multiplayerWaitingSection').classList.remove('hidden');
             document.getElementById('multiplayerRoomCodeDisplay').textContent = multiplayerState.currentRoom;
             updateMultiplayerPlayersList();
-        }
+        };
 
-        function joinMultiplayerRoom() {
+        window.joinMultiplayerRoom = function () {
             const playerName = document.getElementById('multiplayerPlayerNameJoin').value.trim();
             const roomCode = document.getElementById('multiplayerRoomCodeInput').value.trim();
 
@@ -856,20 +863,20 @@
             document.getElementById('multiplayerWaitingSection').classList.remove('hidden');
             document.getElementById('multiplayerRoomCodeDisplay').textContent = roomCode;
             updateMultiplayerPlayersList();
-        }
+        };
 
         function updateMultiplayerPlayersList() {
             const container = document.getElementById('multiplayerPlayersWaitingContainer');
             container.innerHTML = Object.keys(multiplayerState.playerScores).map(name => `
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-                <div class="text-3xl mb-2">👤</div>
-                <div class="text-white font-bold text-sm">${name}</div>
-                <div class="text-xs text-slate-400 mt-2">${name === multiplayerState.currentPlayer ? '(Você)' : 'Pronto'}</div>
-            </div>
-        `).join('');
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                    <div class="text-3xl mb-2">👤</div>
+                    <div class="text-white font-bold text-sm">${name}</div>
+                    <div class="text-xs text-slate-400 mt-2">${name === multiplayerState.currentPlayer ? '(Você)' : 'Pronto'}</div>
+                </div>
+            `).join('');
         }
 
-        function startMultiplayerGame() {
+        window.startMultiplayerGame = function () {
             if (!multiplayerState.isCreator) {
                 alert('Apenas o criador da sala pode iniciar!');
                 return;
@@ -885,7 +892,7 @@
             document.getElementById('multiplayerWaitingSection').classList.add('hidden');
             document.getElementById('multiplayerGameSection').classList.remove('hidden');
             multiplayerLoadQuestion();
-        }
+        };
 
         function multiplayerLoadQuestion() {
             const q = multiplayerState.gameQuestions[multiplayerState.currentQuestionIndex];
@@ -924,7 +931,7 @@
             }, 1000);
         }
 
-        function submitMultiplayerAnswer(answer) {
+        window.submitMultiplayerAnswer = function (answer) {
             if (!multiplayerState.playerAnswered[multiplayerState.currentPlayer]) {
                 const q = multiplayerState.gameQuestions[multiplayerState.currentQuestionIndex];
                 if (answer === q.answer) {
@@ -933,7 +940,7 @@
                 multiplayerState.playerAnswered[multiplayerState.currentPlayer] = true;
                 updateMultiplayerScoreboard();
             }
-        }
+        };
 
         function updateMultiplayerScoreboard() {
             const scoreboard = document.getElementById('multiplayerLiveScoreboard');
@@ -943,13 +950,13 @@
                 let statusIcon = answered ? '✓' : '⏳';
 
                 return `
-                <div class="${statusClass} bg-white/5 border border-white/10 rounded-xl p-3 text-center transition-all">
-                    <div class="text-white font-bold text-lg">${name === multiplayerState.currentPlayer ? '👤' : '👥'}</div>
-                    <div class="text-white font-bold text-sm mt-1">${name}</div>
-                    <div class="text-2xl font-black text-indigo-300 mt-2">${score}</div>
-                    <div class="text-xs text-slate-400 mt-1">${statusIcon}</div>
-                </div>
-            `;
+                    <div class="${statusClass} bg-white/5 border border-white/10 rounded-xl p-3 text-center transition-all">
+                        <div class="text-white font-bold text-lg">${name === multiplayerState.currentPlayer ? '👤' : '👥'}</div>
+                        <div class="text-white font-bold text-sm mt-1">${name}</div>
+                        <div class="text-2xl font-black text-indigo-300 mt-2">${score}</div>
+                        <div class="text-xs text-slate-400 mt-1">${statusIcon}</div>
+                    </div>
+                `;
             }).join('');
         }
 
@@ -972,24 +979,24 @@
 
             const medals = ['🥇', '🥈', '🥉'];
             const podiumHTML = rankings.slice(0, 3).map((player, idx) => `
-            <div class="flex flex-col items-center">
-                <div class="text-5xl mb-3">${medals[idx]}</div>
-                <div class="bg-white/10 border border-white/10 rounded-t-2xl px-6 py-3 text-center" style="height: ${180 - idx * 40}px; display: flex; flex-direction: column; justify-content: flex-end;">
-                    <div class="text-white font-bold">${player.name}</div>
-                    <div class="text-3xl font-black text-amber-300">${player.score}</div>
+                <div class="flex flex-col items-center">
+                    <div class="text-5xl mb-3">${medals[idx]}</div>
+                    <div class="bg-white/10 border border-white/10 rounded-t-2xl px-6 py-3 text-center" style="height: ${180 - idx * 40}px; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <div class="text-white font-bold">${player.name}</div>
+                        <div class="text-3xl font-black text-amber-300">${player.score}</div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
 
             const rankingHTML = rankings.map((player, idx) => `
-            <div class="flex justify-between items-center bg-white/5 border border-white/10 rounded-xl p-4">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">${idx + 1 <= 3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`}</span>
-                    <span class="text-white font-bold">${player.name}</span>
+                <div class="flex justify-between items-center bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${idx + 1 <= 3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`}</span>
+                        <span class="text-white font-bold">${player.name}</span>
+                    </div>
+                    <span class="text-2xl font-black text-indigo-300">${player.score}/10</span>
                 </div>
-                <span class="text-2xl font-black text-indigo-300">${player.score}/10</span>
-            </div>
-        `).join('');
+            `).join('');
 
             document.getElementById('multiplayerPodium').innerHTML = podiumHTML;
             document.getElementById('multiplayerFinalRanking').innerHTML = rankingHTML;
@@ -997,110 +1004,6 @@
             document.getElementById('multiplayerGameSection').classList.add('hidden');
             document.getElementById('multiplayerResultSection').classList.remove('hidden');
         }
-
-        function resetMultiplayerState() {
-            if (multiplayerState.timerInterval) clearInterval(multiplayerState.timerInterval);
-
-            multiplayerState = {
-                currentRoom: null,
-                currentPlayer: null,
-                selectedTopic: "",
-                gameQuestions: [],
-                currentQuestionIndex: 0,
-                playerScores: {},
-                playerAnswered: {},
-                timerInterval: null,
-                timeRemaining: 15,
-                gameActive: false,
-                isCreator: false,
-            };
-        }
-
-        function cleanupOldRooms() {
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('room_')) {
-                    const roomData = localStorage.getItem(key);
-                    if (roomData) {
-                        try {
-                            const data = JSON.parse(roomData);
-                            if (data.createdAt && Date.now() - data.createdAt > 30 * 60 * 1000) {
-                                localStorage.removeItem(key);
-                            }
-                        } catch (e) { }
-                    }
-                }
-            }
-        }
-
-        function showSingleplayerMenu() {
-            document.getElementById('mainMenuSection').classList.add('hidden');
-            document.getElementById('singleplayerMenuSection').classList.remove('hidden');
-        }
-
-        function showMultiplayerMenu() {
-            document.getElementById('mainMenuSection').classList.add('hidden');
-            document.getElementById('multiplayerMenuSection').classList.remove('hidden');
-        }
-
-        function backToMainMenu() {
-            if (multiplayerState.timerInterval) clearInterval(multiplayerState.timerInterval);
-
-            document.getElementById('mainMenuSection').classList.remove('hidden');
-            document.getElementById('singleplayerMenuSection').classList.add('hidden');
-            document.getElementById('singleplayerQuizSection').classList.add('hidden');
-            document.getElementById('singleplayerResultSection').classList.add('hidden');
-            document.getElementById('multiplayerMenuSection').classList.add('hidden');
-            document.getElementById('multiplayerWaitingSection').classList.add('hidden');
-            document.getElementById('multiplayerGameSection').classList.add('hidden');
-            document.getElementById('multiplayerResultSection').classList.add('hidden');
-
-            singleplayerState = {
-                gameQuestions: [],
-                currentIndex: 0,
-                score: 0,
-                streak: 0,
-                wrongCount: 0,
-                answered: false,
-                gameMode: "normal",
-                lives: 3,
-                weightedScore: 0,
-                totalPossibleScore: 0,
-                shuffledQuestions: [],
-                selectedTopic: ""
-            };
-
-            multiplayerState = {
-                currentRoom: null,
-                currentPlayer: null,
-                selectedTopic: "",
-                gameQuestions: [],
-                currentQuestionIndex: 0,
-                playerScores: {},
-                playerAnswered: {},
-                timerInterval: null,
-                timeRemaining: 15,
-                gameActive: false,
-                isCreator: false,
-            };
-        }
-
-        window.showSingleplayerMenu = showSingleplayerMenu;
-        window.showMultiplayerMenu = showMultiplayerMenu;
-        window.backToMainMenu = backToMainMenu;
-        window.startSingleplayer = startSingleplayer;
-        window.singleplayerAnswer = singleplayerAnswer;
-        window.singleplayerNextQuestion = singleplayerNextQuestion;
-        window.singleplayerRestart = singleplayerRestart;
-        window.createMultiplayerRoom = createMultiplayerRoom;
-        window.joinMultiplayerRoom = joinMultiplayerRoom;
-        window.startMultiplayerGame = startMultiplayerGame;
-        window.submitMultiplayerAnswer = submitMultiplayerAnswer;
-        window.resetMultiplayerState = resetMultiplayerState;
-
-        setupSingleplayerTopicDropdown();
-        setupMultiplayerTopicDropdown();
-        cleanupOldRooms();
     </script>
 </body>
 
