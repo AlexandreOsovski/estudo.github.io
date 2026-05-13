@@ -450,39 +450,10 @@
             isCreator: false,
         };
 
-        let allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
-
-        // DROPDOWN apenas para multiplayer
-        function setupMultiplayerDropdown() {
-            const input = document.getElementById('multiplayerTopicSearchInput');
-            const dropdown = document.getElementById('multiplayerTopicDropdown');
-            const dropdownList = document.getElementById('multiplayerTopicDropdownList');
-
-            function render(searchTerm = "") {
-                const term = searchTerm.trim().toLowerCase();
-                let filtered = term === "" ? [...allTopicsList] : allTopicsList.filter(t => t.toLowerCase().includes(term));
-                if (filtered.length === 0) {
-                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico</div>`;
-                    dropdown.classList.remove('hidden');
-                    return;
-                }
-                dropdownList.innerHTML = filtered.map(topic => `<div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200" data-topic="${topic}">📚 ${topic}</div>`).join('');
-                document.querySelectorAll('#multiplayerTopicDropdownList .topic-option').forEach(opt => {
-                    opt.addEventListener('click', () => {
-                        multiplayerState.selectedTopic = opt.getAttribute('data-topic');
-                        input.value = multiplayerState.selectedTopic;
-                        dropdown.classList.add('hidden');
-                    });
-                });
-            }
-            input.addEventListener('input', (e) => { render(e.target.value); dropdown.classList.remove('hidden'); });
-            input.addEventListener('focus', () => { render(input.value); dropdown.classList.remove('hidden'); });
-            document.addEventListener('click', (e) => { if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden'); });
-            render("");
+        function generateRoomCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
         }
-        setupMultiplayerDropdown();
 
-        // ========== SINGLEPLAYER (SEM INPUT DE ASSUNTO, questões aleatórias de TODOS os tópicos) ==========
         function shuffleArray(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -492,25 +463,147 @@
             return a;
         }
 
+        function setupMultiplayerTopicDropdown() {
+            const allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
+            const input = document.getElementById('multiplayerTopicSearchInput');
+            const dropdown = document.getElementById('multiplayerTopicDropdown');
+            const dropdownList = document.getElementById('multiplayerTopicDropdownList');
+
+            function renderTopicDropdown(searchTerm = "") {
+                const term = searchTerm.trim().toLowerCase();
+                let filteredTopics = [];
+                if (term === "") {
+                    filteredTopics = [...allTopicsList];
+                } else {
+                    const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
+                    const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
+                    filteredTopics = [...startsWith, ...contains];
+                }
+
+                if (filteredTopics.length === 0) {
+                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
+                    dropdown.classList.remove('hidden');
+                    return;
+                }
+
+                dropdownList.innerHTML = filteredTopics.map(topic => `
+                <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic}">
+                    <span class="flex items-center gap-2">📚 ${topic}</span>
+                </div>
+            `).join('');
+
+                document.querySelectorAll('#multiplayerTopicDropdownList .topic-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        const topicValue = opt.getAttribute('data-topic');
+                        input.value = topicValue;
+                        multiplayerState.selectedTopic = topicValue;
+                        dropdown.classList.add('hidden');
+                    });
+                });
+            }
+
+            input.addEventListener('input', (e) => {
+                renderTopicDropdown(e.target.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            input.addEventListener('focus', () => {
+                renderTopicDropdown(input.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            renderTopicDropdown("");
+        }
+
+        function setupSingleplayerTopicDropdown() {
+            const allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
+            const input = document.getElementById('singleplayerTopicSearchInput');
+            const dropdown = document.getElementById('singleplayerTopicDropdown');
+            const dropdownList = document.getElementById('singleplayerTopicDropdownList');
+
+            function renderTopicDropdown(searchTerm = "") {
+                const term = searchTerm.trim().toLowerCase();
+                let filteredTopics = [];
+                if (term === "") {
+                    filteredTopics = [...allTopicsList];
+                } else {
+                    const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
+                    const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
+                    filteredTopics = [...startsWith, ...contains];
+                }
+
+                if (filteredTopics.length === 0) {
+                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
+                    dropdown.classList.remove('hidden');
+                    return;
+                }
+
+                dropdownList.innerHTML = filteredTopics.map(topic => `
+                <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic}">
+                    <span class="flex items-center gap-2">📚 ${topic}</span>
+                </div>
+            `).join('');
+
+                document.querySelectorAll('#singleplayerTopicDropdownList .topic-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        const topicValue = opt.getAttribute('data-topic');
+                        input.value = topicValue;
+                        singleplayerState.selectedTopic = topicValue;
+                        document.getElementById('singleplayerSelectedBadge').innerHTML = `<span class="bg-indigo-500/30 px-3 py-1 rounded-full text-xs">📌 Filtro: ${topicValue}</span>`;
+                        dropdown.classList.add('hidden');
+                    });
+                });
+            }
+
+            input.addEventListener('input', (e) => {
+                renderTopicDropdown(e.target.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            input.addEventListener('focus', () => {
+                renderTopicDropdown(input.value);
+                dropdown.classList.remove('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            renderTopicDropdown("");
+        }
+
         function inferDifficulty(question) {
             const text = question.text.toLowerCase();
-            if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('dijkstra')) return 'hard';
-            if (text.includes('queue') || text.includes('stack') || text.includes('hash') || text.includes('lista')) return 'medium';
+            if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('bfs') || text.includes('programação dinâmica') || text.includes('dijkstra') || text.includes('concorrência') || text.includes('deadlock')) return 'hard';
+            if (text.includes('queue') || text.includes('stack') || text.includes('hash') || text.includes('api') || text.includes('rest') || text.includes('microservices') || text.includes('docker') || text.includes('kafka') || text.includes('rabbitmq')) return 'medium';
             return 'easy';
         }
 
-        window.startSingleplayer = function () {
+        function startSingleplayer() {
             const gameMode = document.getElementById('singleplayerModeSelect').value;
-            // Seleciona 12 questões aleatórias de todos os tópicos
-            const shuffledAll = shuffleArray([...allQuestions]);
-            const selectedQuestions = shuffledAll.slice(0, 12);
-            if (selectedQuestions.length < 10) {
-                alert("Poucas questões disponíveis.");
+
+            if (!singleplayerState.selectedTopic) {
+                alert('Escolha um tópico!');
+                return;
+            }
+
+            const filteredQuestions = allQuestions.filter(q => q.topic === singleplayerState.selectedTopic);
+            if (filteredQuestions.length < 10) {
+                alert('Este tópico não tem questões suficientes');
                 return;
             }
 
             singleplayerState.gameMode = gameMode;
-            singleplayerState.shuffledQuestions = selectedQuestions;
+            singleplayerState.gameQuestions = shuffleArray(filteredQuestions).slice(0, 10);
+            singleplayerState.shuffledQuestions = singleplayerState.gameQuestions;
             singleplayerState.currentIndex = 0;
             singleplayerState.score = 0;
             singleplayerState.streak = 0;
@@ -522,101 +615,492 @@
             document.getElementById('singleplayerMenuSection').querySelector('.flex')?.classList?.add('hidden');
             document.getElementById('singleplayerQuizSection').classList.remove('hidden');
             document.getElementById('singleplayerResultSection').classList.add('hidden');
+
             singleplayerLoadQuestion();
-        };
+        }
 
         function singleplayerLoadQuestion() {
             const q = singleplayerState.shuffledQuestions[singleplayerState.currentIndex];
+            if (!q) return;
+
             document.getElementById('singleplayerTopic').innerHTML = `📘 ${q.topic}`;
             document.getElementById('singleplayerQuestion').textContent = q.text;
-            document.getElementById('singleplayerProgressText').textContent = `${singleplayerState.currentIndex + 1}/${singleplayerState.shuffledQuestions.length}`;
-            const percent = ((singleplayerState.currentIndex + 1) / singleplayerState.shuffledQuestions.length) * 100;
-            document.getElementById('singleplayerProgressFill').style.width = `${percent}%`;
-            document.getElementById('singleplayerFeedback').classList.add('hidden');
+            document.getElementById('singleplayerProgressText').textContent = `${singleplayerState.currentIndex + 1}/10`;
+            document.getElementById('singleplayerProgressFill').style.width = `${((singleplayerState.currentIndex + 1) / 10) * 100}%`;
+
+            const feedbackDiv = document.getElementById('singleplayerFeedback');
+            feedbackDiv.classList.add('hidden');
+            feedbackDiv.classList.remove('border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
+
             document.getElementById('singleplayerButtons').style.display = 'grid';
             document.getElementById('singleplayerNextBtn').classList.add('hidden');
+
             singleplayerState.answered = false;
             singleplayerUpdateStats();
         }
 
         function singleplayerUpdateStats() {
-            const answered = singleplayerState.currentIndex + 1;
-            let percent = (singleplayerState.gameMode === 'enem') ?
-                (singleplayerState.totalPossibleScore ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0) :
-                Math.round((singleplayerState.score / answered) * 100);
-            document.getElementById('singleplayerAnsweredCount').innerText = answered;
+            const answeredCountVal = singleplayerState.currentIndex + 1;
+            let percent = 0;
+
+            if (singleplayerState.gameMode === 'normal' || singleplayerState.gameMode === 'hardcore') {
+                percent = answeredCountVal > 0 ? Math.round((singleplayerState.score / answeredCountVal) * 100) : 0;
+            } else {
+                percent = singleplayerState.totalPossibleScore > 0 ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0;
+            }
+
+            document.getElementById('singleplayerAnsweredCount').innerText = answeredCountVal;
             document.getElementById('singleplayerWrongCount').innerText = singleplayerState.wrongCount;
             document.getElementById('singleplayerPercentage').innerText = percent;
             document.getElementById('singleplayerStreak').innerText = singleplayerState.streak;
-            let diff = inferDifficulty(singleplayerState.shuffledQuestions[singleplayerState.currentIndex]);
-            document.getElementById('singleplayerDifficulty').innerHTML = diff === 'hard' ? '🔥 HARD' : (diff === 'medium' ? '⚡ MÉDIO' : '🍃 FÁCIL');
+
+            if (singleplayerState.shuffledQuestions[singleplayerState.currentIndex]) {
+                const diffLocal = inferDifficulty(singleplayerState.shuffledQuestions[singleplayerState.currentIndex]);
+                document.getElementById('singleplayerDifficulty').innerHTML = diffLocal === 'hard' ? '🔥 Dificuldade: HARD' : (diffLocal === 'medium' ? '⚡ Dificuldade: MÉDIO' : '🍃 Dificuldade: FÁCIL');
+            }
+
             if (singleplayerState.gameMode === 'hardcore') {
-                document.getElementById('singleplayerLives').innerHTML = '❤️'.repeat(Math.max(0, singleplayerState.lives));
-            } else { document.getElementById('singleplayerLives').innerHTML = ''; }
+                const livesHtml = '❤️'.repeat(singleplayerState.lives) + (singleplayerState.lives <= 0 ? '💀' : '');
+                document.getElementById('singleplayerLives').innerHTML = livesHtml;
+            } else {
+                document.getElementById('singleplayerLives').innerHTML = '';
+            }
         }
 
-        window.singleplayerAnswer = function (userAnswer) {
+        function singleplayerAnswer(userAnswer) {
             if (singleplayerState.answered) return;
+
             singleplayerState.answered = true;
             const q = singleplayerState.shuffledQuestions[singleplayerState.currentIndex];
             const isCorrect = (userAnswer === q.answer);
-            const diff = inferDifficulty(q);
-            const weight = { easy: 1, medium: 2, hard: 4 }[diff];
+            const difficulty = inferDifficulty(q);
+            const weight = { easy: 1, medium: 2, hard: 4 }[difficulty] || 2;
+
             singleplayerState.totalPossibleScore += weight;
+
             if (singleplayerState.gameMode === 'normal') {
-                if (isCorrect) { singleplayerState.score++; singleplayerState.streak++; } else { singleplayerState.wrongCount++; singleplayerState.streak = 0; }
-            } else if (singleplayerState.gameMode === 'enem') {
-                if (isCorrect) { singleplayerState.weightedScore += weight; singleplayerState.score++; singleplayerState.streak++; }
-                else { singleplayerState.wrongCount++; singleplayerState.streak = 0; if (diff === 'easy') singleplayerState.weightedScore -= 1; else if (diff === 'medium') singleplayerState.weightedScore -= 0.5; singleplayerState.weightedScore = Math.max(0, singleplayerState.weightedScore); }
-            } else if (singleplayerState.gameMode === 'hardcore') {
                 if (isCorrect) { singleplayerState.score++; singleplayerState.streak++; }
-                else { singleplayerState.wrongCount++; singleplayerState.streak = 0; singleplayerState.lives--; if (singleplayerState.lives <= 0) { singleplayerShowResults(true); return; } }
+                else { singleplayerState.wrongCount++; singleplayerState.streak = 0; }
+            } else if (singleplayerState.gameMode === 'enem') {
+                if (isCorrect) {
+                    singleplayerState.weightedScore += weight;
+                    singleplayerState.score++;
+                    singleplayerState.streak++;
+                } else {
+                    singleplayerState.wrongCount++;
+                    singleplayerState.streak = 0;
+                    if (difficulty === 'easy') singleplayerState.weightedScore -= 1;
+                    else if (difficulty === 'medium') singleplayerState.weightedScore -= 0.5;
+                    if (singleplayerState.weightedScore < 0) singleplayerState.weightedScore = 0;
+                }
+            } else if (singleplayerState.gameMode === 'hardcore') {
+                if (isCorrect) {
+                    singleplayerState.score++;
+                    singleplayerState.streak++;
+                } else {
+                    singleplayerState.wrongCount++;
+                    singleplayerState.streak = 0;
+                    singleplayerState.lives--;
+                    if (singleplayerState.lives < 0) singleplayerState.lives = 0;
+                    if (singleplayerState.lives <= 0) {
+                        singleplayerShowResults(true);
+                        return;
+                    }
+                }
             }
-            const fb = document.getElementById('singleplayerFeedback');
-            fb.classList.remove('hidden', 'border-l-emerald-500', 'border-l-rose-500');
-            fb.classList.add(isCorrect ? 'border-l-emerald-500' : 'border-l-rose-500', isCorrect ? 'bg-emerald-950/30' : 'bg-rose-950/30');
-            document.getElementById('singleplayerFeedbackIcon').innerHTML = isCorrect ? '✓' : '✗';
-            document.getElementById('singleplayerFeedbackTitle').innerHTML = isCorrect ? 'Correto!' : 'Incorreto!';
+
+            const feedbackDiv = document.getElementById('singleplayerFeedback');
+            feedbackDiv.classList.remove('hidden', 'border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
+
+            if (isCorrect) {
+                feedbackDiv.classList.add('border-l-emerald-500', 'bg-emerald-950/30');
+                document.getElementById('singleplayerFeedbackIcon').innerHTML = '✓';
+                document.getElementById('singleplayerFeedbackTitle').innerHTML = 'Correto!';
+            } else {
+                feedbackDiv.classList.add('border-l-rose-500', 'bg-rose-950/30');
+                document.getElementById('singleplayerFeedbackIcon').innerHTML = '✗';
+                document.getElementById('singleplayerFeedbackTitle').innerHTML = 'Incorreto!';
+            }
+
             document.getElementById('singleplayerFeedbackText').innerHTML = q.explanation;
             document.getElementById('singleplayerButtons').style.display = 'none';
             document.getElementById('singleplayerNextBtn').classList.remove('hidden');
+
             singleplayerUpdateStats();
-        };
+        }
 
-        window.singleplayerNextQuestion = function () {
+        function singleplayerNextQuestion() {
             singleplayerState.currentIndex++;
-            if (singleplayerState.currentIndex >= singleplayerState.shuffledQuestions.length) singleplayerShowResults(false);
-            else singleplayerLoadQuestion();
-        };
+            if (singleplayerState.currentIndex >= 10) {
+                singleplayerShowResults(false);
+            } else {
+                singleplayerLoadQuestion();
+            }
+        }
 
-        function singleplayerShowResults(gameOver) {
-            let total = singleplayerState.shuffledQuestions.length;
-            let percent = (singleplayerState.gameMode === 'enem') ? (singleplayerState.totalPossibleScore ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0) : Math.round((singleplayerState.score / total) * 100);
-            let emoji = percent >= 80 ? '🏆' : (percent >= 60 ? '🔥' : '📚');
-            let msg = gameOver ? `💀 Game Over! Acertou ${singleplayerState.score}/${total}` : `Você acertou ${singleplayerState.score} de ${total}!`;
+        function singleplayerShowResults(gameOver = false) {
+            let percentage = 0;
+            if (singleplayerState.gameMode === 'enem') {
+                percentage = singleplayerState.totalPossibleScore > 0 ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0;
+            } else {
+                percentage = Math.round((singleplayerState.score / 10) * 100);
+            }
+
+            let emoji = '📚', message = 'Continue estudando!';
+            if (gameOver) {
+                emoji = '💀';
+                message = `Você perdeu! Acertou ${singleplayerState.score} de 10.`;
+            } else if (percentage === 100) {
+                emoji = '🏆';
+                message = 'Perfeito! Domínio total.';
+            } else if (percentage >= 80) {
+                emoji = '🔥';
+                message = 'Muito bom! Quase lá.';
+            } else if (percentage >= 60) {
+                emoji = '👍';
+                message = 'Bom desempenho!';
+            } else {
+                emoji = '📖';
+                message = 'Tente novamente!';
+            }
+
             document.getElementById('singleplayerResultEmoji').innerText = emoji;
-            document.getElementById('singleplayerFinalScore').innerText = `${percent}%`;
+            document.getElementById('singleplayerFinalScore').innerText = `${percentage}%`;
             document.getElementById('singleplayerFinalCorrect').innerText = singleplayerState.score;
-            document.getElementById('singleplayerFinalPercentage').innerText = `${percent}%`;
-            document.getElementById('singleplayerResultMessage').innerHTML = msg;
+            document.getElementById('singleplayerFinalPercentage').innerText = `${percentage}%`;
+            document.getElementById('singleplayerResultMessage').innerHTML = `${message} <br/> <span class="text-sm text-slate-400">${singleplayerState.score} acertos de 10 questões</span>`;
+
             document.getElementById('singleplayerQuizSection').classList.add('hidden');
             document.getElementById('singleplayerResultSection').classList.remove('hidden');
         }
 
-        window.singleplayerRestart = function () {
+        function singleplayerRestart() {
             document.getElementById('singleplayerResultSection').classList.add('hidden');
-            window.startSingleplayer();
-        };
+            startSingleplayer();
+        }
 
-        // ========== MULTIPLAYER STUBS (mantido funcional) ==========
-        window.showSingleplayerMenu = function () { document.getElementById('mainMenuSection').classList.add('hidden'); document.getElementById('singleplayerMenuSection').classList.remove('hidden'); };
-        window.showMultiplayerMenu = function () { document.getElementById('mainMenuSection').classList.add('hidden'); document.getElementById('multiplayerMenuSection').classList.remove('hidden'); };
-        window.backToMainMenu = function () { location.reload(); };
+        function createMultiplayerRoom() {
+            const playerName = document.getElementById('multiplayerPlayerNameCreate').value.trim();
+            if (!playerName) {
+                alert('Digite seu nome!');
+                return;
+            }
+            if (!multiplayerState.selectedTopic) {
+                alert('Escolha um tópico!');
+                return;
+            }
 
-        window.createMultiplayerRoom = function () { alert("Modo multiplayer em desenvolvimento - use Singleplayer!"); };
-        window.joinMultiplayerRoom = function () { alert("Modo multiplayer em desenvolvimento"); };
-        window.startMultiplayerGame = function () { };
-        window.submitMultiplayerAnswer = function () { };
+            const filteredQuestions = allQuestions.filter(q => q.topic === multiplayerState.selectedTopic);
+            if (filteredQuestions.length < 10) {
+                alert('Este tópico não tem questões suficientes');
+                return;
+            }
+
+            multiplayerState.currentRoom = generateRoomCode();
+            multiplayerState.currentPlayer = playerName;
+            multiplayerState.gameQuestions = shuffleArray(filteredQuestions).slice(0, 10);
+            multiplayerState.playerScores = { [playerName]: 0 };
+            multiplayerState.playerAnswered = { [playerName]: false };
+            multiplayerState.isCreator = true;
+
+            localStorage.setItem(`room_${multiplayerState.currentRoom}`, JSON.stringify({
+                creator: playerName,
+                topic: multiplayerState.selectedTopic,
+                questions: multiplayerState.gameQuestions,
+                players: multiplayerState.playerScores,
+                started: false,
+                createdAt: Date.now()
+            }));
+
+            document.getElementById('multiplayerMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerWaitingSection').classList.remove('hidden');
+            document.getElementById('multiplayerRoomCodeDisplay').textContent = multiplayerState.currentRoom;
+            updateMultiplayerPlayersList();
+        }
+
+        function joinMultiplayerRoom() {
+            const playerName = document.getElementById('multiplayerPlayerNameJoin').value.trim();
+            const roomCode = document.getElementById('multiplayerRoomCodeInput').value.trim();
+
+            if (!playerName) {
+                alert('Digite seu nome!');
+                return;
+            }
+            if (!roomCode) {
+                alert('Digite o código da sala!');
+                return;
+            }
+
+            const roomData = localStorage.getItem(`room_${roomCode}`);
+            if (!roomData) {
+                alert('Sala não encontrada!');
+                return;
+            }
+
+            const data = JSON.parse(roomData);
+            multiplayerState.currentRoom = roomCode;
+            multiplayerState.currentPlayer = playerName;
+            multiplayerState.gameQuestions = data.questions;
+            multiplayerState.selectedTopic = data.topic;
+            multiplayerState.playerScores = data.players;
+            multiplayerState.playerScores[playerName] = 0;
+            multiplayerState.playerAnswered[playerName] = false;
+            multiplayerState.isCreator = false;
+
+            localStorage.setItem(`room_${roomCode}`, JSON.stringify({
+                ...data,
+                players: multiplayerState.playerScores
+            }));
+
+            document.getElementById('multiplayerMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerWaitingSection').classList.remove('hidden');
+            document.getElementById('multiplayerRoomCodeDisplay').textContent = roomCode;
+            updateMultiplayerPlayersList();
+        }
+
+        function updateMultiplayerPlayersList() {
+            const container = document.getElementById('multiplayerPlayersWaitingContainer');
+            container.innerHTML = Object.keys(multiplayerState.playerScores).map(name => `
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div class="text-3xl mb-2">👤</div>
+                <div class="text-white font-bold text-sm">${name}</div>
+                <div class="text-xs text-slate-400 mt-2">${name === multiplayerState.currentPlayer ? '(Você)' : 'Pronto'}</div>
+            </div>
+        `).join('');
+        }
+
+        function startMultiplayerGame() {
+            if (!multiplayerState.isCreator) {
+                alert('Apenas o criador da sala pode iniciar!');
+                return;
+            }
+
+            multiplayerState.gameActive = true;
+            multiplayerState.currentQuestionIndex = 0;
+            multiplayerState.playerAnswered = Object.keys(multiplayerState.playerScores).reduce((acc, p) => {
+                acc[p] = false;
+                return acc;
+            }, {});
+
+            document.getElementById('multiplayerWaitingSection').classList.add('hidden');
+            document.getElementById('multiplayerGameSection').classList.remove('hidden');
+            multiplayerLoadQuestion();
+        }
+
+        function multiplayerLoadQuestion() {
+            const q = multiplayerState.gameQuestions[multiplayerState.currentQuestionIndex];
+            document.getElementById('multiplayerTopic').innerHTML = `📘 ${q.topic}`;
+            document.getElementById('multiplayerQuestion').textContent = q.text;
+            document.getElementById('multiplayerProgressText').textContent = `${multiplayerState.currentQuestionIndex + 1}/10`;
+            document.getElementById('multiplayerProgressFill').style.width = `${((multiplayerState.currentQuestionIndex + 1) / 10) * 100}%`;
+
+            multiplayerState.playerAnswered = Object.keys(multiplayerState.playerScores).reduce((acc, p) => {
+                acc[p] = false;
+                return acc;
+            }, {});
+            multiplayerState.timeRemaining = 15;
+            startMultiplayerTimer();
+            updateMultiplayerScoreboard();
+        }
+
+        function startMultiplayerTimer() {
+            if (multiplayerState.timerInterval) clearInterval(multiplayerState.timerInterval);
+
+            multiplayerState.timerInterval = setInterval(() => {
+                multiplayerState.timeRemaining--;
+                const timerEl = document.getElementById('multiplayerTimer');
+                timerEl.textContent = multiplayerState.timeRemaining;
+
+                if (multiplayerState.timeRemaining <= 5) {
+                    timerEl.classList.add('timer-critical');
+                } else {
+                    timerEl.classList.remove('timer-critical');
+                }
+
+                if (multiplayerState.timeRemaining <= 0) {
+                    clearInterval(multiplayerState.timerInterval);
+                    multiplayerNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function submitMultiplayerAnswer(answer) {
+            if (!multiplayerState.playerAnswered[multiplayerState.currentPlayer]) {
+                const q = multiplayerState.gameQuestions[multiplayerState.currentQuestionIndex];
+                if (answer === q.answer) {
+                    multiplayerState.playerScores[multiplayerState.currentPlayer]++;
+                }
+                multiplayerState.playerAnswered[multiplayerState.currentPlayer] = true;
+                updateMultiplayerScoreboard();
+            }
+        }
+
+        function updateMultiplayerScoreboard() {
+            const scoreboard = document.getElementById('multiplayerLiveScoreboard');
+            scoreboard.innerHTML = Object.entries(multiplayerState.playerScores).map(([name, score]) => {
+                const answered = multiplayerState.playerAnswered[name];
+                let statusClass = answered ? 'opacity-100' : 'opacity-60';
+                let statusIcon = answered ? '✓' : '⏳';
+
+                return `
+                <div class="${statusClass} bg-white/5 border border-white/10 rounded-xl p-3 text-center transition-all">
+                    <div class="text-white font-bold text-lg">${name === multiplayerState.currentPlayer ? '👤' : '👥'}</div>
+                    <div class="text-white font-bold text-sm mt-1">${name}</div>
+                    <div class="text-2xl font-black text-indigo-300 mt-2">${score}</div>
+                    <div class="text-xs text-slate-400 mt-1">${statusIcon}</div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function multiplayerNextQuestion() {
+            multiplayerState.currentQuestionIndex++;
+            if (multiplayerState.currentQuestionIndex >= 10) {
+                multiplayerEndGame();
+            } else {
+                multiplayerLoadQuestion();
+            }
+        }
+
+        function multiplayerEndGame() {
+            clearInterval(multiplayerState.timerInterval);
+            multiplayerState.gameActive = false;
+
+            const rankings = Object.entries(multiplayerState.playerScores)
+                .map(([name, score]) => ({ name, score }))
+                .sort((a, b) => b.score - a.score);
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const podiumHTML = rankings.slice(0, 3).map((player, idx) => `
+            <div class="flex flex-col items-center">
+                <div class="text-5xl mb-3">${medals[idx]}</div>
+                <div class="bg-white/10 border border-white/10 rounded-t-2xl px-6 py-3 text-center" style="height: ${180 - idx * 40}px; display: flex; flex-direction: column; justify-content: flex-end;">
+                    <div class="text-white font-bold">${player.name}</div>
+                    <div class="text-3xl font-black text-amber-300">${player.score}</div>
+                </div>
+            </div>
+        `).join('');
+
+            const rankingHTML = rankings.map((player, idx) => `
+            <div class="flex justify-between items-center bg-white/5 border border-white/10 rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${idx + 1 <= 3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`}</span>
+                    <span class="text-white font-bold">${player.name}</span>
+                </div>
+                <span class="text-2xl font-black text-indigo-300">${player.score}/10</span>
+            </div>
+        `).join('');
+
+            document.getElementById('multiplayerPodium').innerHTML = podiumHTML;
+            document.getElementById('multiplayerFinalRanking').innerHTML = rankingHTML;
+
+            document.getElementById('multiplayerGameSection').classList.add('hidden');
+            document.getElementById('multiplayerResultSection').classList.remove('hidden');
+        }
+
+        function resetMultiplayerState() {
+            if (multiplayerState.timerInterval) clearInterval(multiplayerState.timerInterval);
+
+            multiplayerState = {
+                currentRoom: null,
+                currentPlayer: null,
+                selectedTopic: "",
+                gameQuestions: [],
+                currentQuestionIndex: 0,
+                playerScores: {},
+                playerAnswered: {},
+                timerInterval: null,
+                timeRemaining: 15,
+                gameActive: false,
+                isCreator: false,
+            };
+        }
+
+        function cleanupOldRooms() {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('room_')) {
+                    const roomData = localStorage.getItem(key);
+                    if (roomData) {
+                        try {
+                            const data = JSON.parse(roomData);
+                            if (data.createdAt && Date.now() - data.createdAt > 30 * 60 * 1000) {
+                                localStorage.removeItem(key);
+                            }
+                        } catch (e) { }
+                    }
+                }
+            }
+        }
+
+        function showSingleplayerMenu() {
+            document.getElementById('mainMenuSection').classList.add('hidden');
+            document.getElementById('singleplayerMenuSection').classList.remove('hidden');
+        }
+
+        function showMultiplayerMenu() {
+            document.getElementById('mainMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerMenuSection').classList.remove('hidden');
+        }
+
+        function backToMainMenu() {
+            if (multiplayerState.timerInterval) clearInterval(multiplayerState.timerInterval);
+
+            document.getElementById('mainMenuSection').classList.remove('hidden');
+            document.getElementById('singleplayerMenuSection').classList.add('hidden');
+            document.getElementById('singleplayerQuizSection').classList.add('hidden');
+            document.getElementById('singleplayerResultSection').classList.add('hidden');
+            document.getElementById('multiplayerMenuSection').classList.add('hidden');
+            document.getElementById('multiplayerWaitingSection').classList.add('hidden');
+            document.getElementById('multiplayerGameSection').classList.add('hidden');
+            document.getElementById('multiplayerResultSection').classList.add('hidden');
+
+            singleplayerState = {
+                gameQuestions: [],
+                currentIndex: 0,
+                score: 0,
+                streak: 0,
+                wrongCount: 0,
+                answered: false,
+                gameMode: "normal",
+                lives: 3,
+                weightedScore: 0,
+                totalPossibleScore: 0,
+                shuffledQuestions: [],
+                selectedTopic: ""
+            };
+
+            multiplayerState = {
+                currentRoom: null,
+                currentPlayer: null,
+                selectedTopic: "",
+                gameQuestions: [],
+                currentQuestionIndex: 0,
+                playerScores: {},
+                playerAnswered: {},
+                timerInterval: null,
+                timeRemaining: 15,
+                gameActive: false,
+                isCreator: false,
+            };
+        }
+
+        window.showSingleplayerMenu = showSingleplayerMenu;
+        window.showMultiplayerMenu = showMultiplayerMenu;
+        window.backToMainMenu = backToMainMenu;
+        window.startSingleplayer = startSingleplayer;
+        window.singleplayerAnswer = singleplayerAnswer;
+        window.singleplayerNextQuestion = singleplayerNextQuestion;
+        window.singleplayerRestart = singleplayerRestart;
+        window.createMultiplayerRoom = createMultiplayerRoom;
+        window.joinMultiplayerRoom = joinMultiplayerRoom;
+        window.startMultiplayerGame = startMultiplayerGame;
+        window.submitMultiplayerAnswer = submitMultiplayerAnswer;
+        window.resetMultiplayerState = resetMultiplayerState;
+
+        setupSingleplayerTopicDropdown();
+        setupMultiplayerTopicDropdown();
+        cleanupOldRooms();
     </script>
 </body>
 
