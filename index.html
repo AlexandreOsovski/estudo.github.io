@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>TechMaster Quiz · Estruturas de Dados & Arquitetura</title>
+    <title>TechMaster Quiz - Singleplayer & Multiplayer</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -70,6 +70,10 @@
             padding: 8px 16px !important;
             font-size: 13px !important;
         }
+
+        .timer-critical {
+            animation: pulse 1s infinite;
+        }
     </style>
 </head>
 
@@ -77,149 +81,330 @@
     class="bg-gradient-to-br from-[#0f172a] via-[#0b0f1c] to-[#020617] min-h-screen flex items-center justify-center p-5 md:p-6 font-sans">
 
     <div
-        class="w-full max-w-4xl mx-auto bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 transition-all">
+        class="w-full max-w-6xl mx-auto bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/10">
 
-        <div
-            class="px-6 py-8 md:px-10 md:py-10 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent">
-            <h1
-                class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-300 bg-clip-text text-transparent">
-                🧠 Estruturas de Dados</h1>
-            <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Pilhas, HashMap, Árvores, Filas, Cloud,
-                Backend & mais — pesquise seu tópico favorito!</p>
-        </div>
-
-        <div class="p-5 md:p-8">
-
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 mb-8 backdrop-blur-sm">
-                <h3 class="text-white font-bold text-lg mb-1">🎯 Escolha seu desafio</h3>
-                <p class="text-slate-400 text-sm mb-5">Digite para filtrar os tópicos (ex: "C" mostra Clean Code, Cloud,
-                    etc). Lista em ordem alfabética.</p>
-
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="relative flex-1 custom-select-search">
-                        <input type="text" id="topicSearchInput"
-                            placeholder="🔍 Pesquisar tópico... (ex: tree, clean, java)"
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
-                        <div id="topicDropdown"
-                            class="w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl hidden overflow-hidden backdrop-blur-md bg-opacity-95">
-                            <div class="dropdown-list" id="topicDropdownList">
-                            </div>
-                        </div>
-                        <input type="hidden" id="selectedTopicValue" value="">
-                    </div>
-
-                    <select id="modeSelect"
-                        class="w-full sm:w-56 bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
-                        <option value="normal">🎯 Normal (clássico)</option>
-                        <option value="enem">🧠 ENEM (peso por dificuldade)</option>
-                        <option value="hardcore">💀 Hardcore (3 vidas)</option>
-                    </select>
-
-                    <button onclick="window.startQuiz()"
-                        class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-900/30 flex items-center justify-center gap-2 whitespace-nowrap">🚀
-                        Iniciar Quiz</button>
-                </div>
-
-                <div id="selectedTopicBadge" class="mt-3 text-xs text-indigo-300 flex items-center gap-2">
-                    <span class="opacity-70">📌 Nenhum filtro aplicado</span>
-                </div>
+        <!-- MENU PRINCIPAL - ESCOLHER MODO -->
+        <div id="mainMenuSection" class="block">
+            <div
+                class="px-6 py-8 md:px-10 md:py-10 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent">
+                <h1
+                    class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-300 bg-clip-text text-transparent">
+                    🧠 TechMaster Quiz</h1>
+                <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Escolha seu modo de jogo!</p>
             </div>
 
-            <div id="quizSection" class="hidden space-y-6">
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm text-slate-400 font-medium">
-                        <span>📊 Progresso</span>
-                        <span id="progressText">0/0</span>
+            <div class="p-5 md:p-8 space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- SINGLEPLAYER -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm hover:border-indigo-500/50 transition-all cursor-pointer"
+                        onclick="window.showSingleplayerMenu()">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h3 class="text-white font-bold text-2xl mb-2">Jogar Sozinho</h3>
+                        <p class="text-slate-400">Teste seus conhecimentos em estruturas de dados, arquitetura e muito
+                            mais!</p>
+                        <button
+                            class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold py-3 rounded-xl transition-all mt-6">▶️
+                            Iniciar</button>
                     </div>
-                    <div class="w-full h-2.5 bg-slate-800/70 rounded-full overflow-hidden">
-                        <div id="progressFill"
-                            class="progress-fill h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300">
+
+                    <!-- MULTIPLAYER -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-500/50 transition-all cursor-pointer"
+                        onclick="window.showMultiplayerMenu()">
+                        <div class="text-6xl mb-4">🎮</div>
+                        <h3 class="text-white font-bold text-2xl mb-2">Jogar com Amigos</h3>
+                        <p class="text-slate-400">Desafie seus amigos em tempo real com código de sala!</p>
+                        <button
+                            class="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold py-3 rounded-xl transition-all mt-6">🎯
+                            Multiplayer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SINGLEPLAYER ========== -->
+        <!-- MENU SINGLEPLAYER - SEM INPUT DE ASSUNTO (escondido por padrão) -->
+        <div id="singleplayerMenuSection" class="hidden">
+            <div
+                class="px-6 py-8 md:px-10 md:py-10 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent">
+                <h1
+                    class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-300 bg-clip-text text-transparent">
+                    🧠 Jogar Sozinho</h1>
+                <p class="text-slate-400 text-sm md:text-base mt-2 font-medium">Escolha o modo de dificuldade e comece!
+                </p>
+            </div>
+
+            <div class="p-5 md:p-8">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 mb-8 backdrop-blur-sm">
+                    <h3 class="text-white font-bold text-lg mb-1">🎯 Configurações do Desafio</h3>
+                    <p class="text-slate-400 text-sm mb-5">Selecione o modo de jogo e comece a responder perguntas
+                        aleatórias!</p>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <!-- Campo de seleção de modo - SEM INPUT DE TÓPICO -->
+                        <select id="singleplayerModeSelect"
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                            <option value="normal">🎯 Normal</option>
+                            <option value="enem">🧠 ENEM</option>
+                            <option value="hardcore">💀 Hardcore</option>
+                        </select>
+
+                        <button onclick="window.startSingleplayer()"
+                            class="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold px-8 py-3 rounded-xl transition-all whitespace-nowrap">
+                            🚀 Iniciar Quiz
+                        </button>
+                    </div>
+
+                    <!-- Badge informativo (sem filtro de tópico) -->
+                    <div id="singleplayerInfoBadge" class="mt-3 text-xs text-indigo-300">
+                        <span class="opacity-80">✨ Modo livre - perguntas aleatórias de TODOS os assuntos!</span>
+                    </div>
+                </div>
+
+                <!-- QUIZ SINGLEPLAYER -->
+                <div id="singleplayerQuizSection" class="hidden space-y-6">
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm text-slate-400 font-medium">
+                            <span>📊 Progresso</span>
+                            <span id="singleplayerProgressText">0/0</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-800/70 rounded-full overflow-hidden">
+                            <div id="singleplayerProgressFill"
+                                class="progress-fill h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300">
+                            </div>
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                            <div class="text-slate-400 text-xs uppercase tracking-wide">Respondidas</div>
+                            <div class="text-3xl font-black text-white"><span id="singleplayerAnsweredCount">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                            <div class="text-slate-400 text-xs uppercase tracking-wide">Erros</div>
+                            <div class="text-3xl font-black text-white"><span id="singleplayerWrongCount">0</span></div>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                            <div class="text-slate-400 text-xs uppercase tracking-wide">Pontuação</div>
+                            <div class="text-3xl font-black text-white"><span id="singleplayerPercentage">0</span>%
+                            </div>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+                            <div class="text-slate-400 text-xs uppercase tracking-wide">🔥 Sequência</div>
+                            <div class="text-3xl font-black text-white"><span id="singleplayerStreak">0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-between items-center gap-3">
+                        <div id="singleplayerDifficulty"
+                            class="text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            ⚡ MODO ATIVO</div>
+                        <div id="singleplayerLives" class="text-2xl font-bold tracking-wide text-rose-400"></div>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                        <div id="singleplayerTopic"
+                            class="inline-block text-xs font-bold px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 mb-4">
+                            📘 Tópico</div>
+                        <div id="singleplayerQuestion"
+                            class="text-xl md:text-3xl font-bold text-white leading-tight tracking-tight">Carregando
+                            pergunta...</div>
+                    </div>
+
+                    <div id="singleplayerFeedback"
+                        class="hidden rounded-xl p-5 border-l-4 transition-all animate-fade-slide">
+                        <div class="flex items-center gap-3 font-bold text-lg mb-2">
+                            <span id="singleplayerFeedbackIcon" class="text-white">✓</span>
+                            <span id="singleplayerFeedbackTitle" class="text-white">Correto</span>
+                        </div>
+                        <div id="singleplayerFeedbackText" class="text-sm leading-relaxed text-slate-200"></div>
+                    </div>
+
+                    <div id="singleplayerButtons" class="grid grid-cols-2 gap-4">
+                        <button onclick="window.singleplayerAnswer(true)"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-emerald-900/20">✓
+                            Verdadeiro</button>
+                        <button onclick="window.singleplayerAnswer(false)"
+                            class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-rose-900/20">✗
+                            Falso</button>
+                    </div>
+                    <button id="singleplayerNextBtn" onclick="window.singleplayerNextQuestion()"
+                        class="hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl transition-all text-center">Próxima
+                        questão →</button>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-                        <div class="text-slate-400 text-xs uppercase tracking-wide">Respondidas</div>
-                        <div class="text-3xl font-black text-white"><span id="answeredCount">0</span></div>
+                <!-- RESULTADO SINGLEPLAYER -->
+                <div id="singleplayerResultSection" class="hidden text-center space-y-6">
+                    <div id="singleplayerResultEmoji" class="text-7xl md:text-8xl">🏆</div>
+                    <div id="singleplayerFinalScore"
+                        class="text-6xl md:text-7xl font-black bg-gradient-to-r from-amber-200 via-white to-indigo-200 bg-clip-text text-transparent">
+                        0%</div>
+                    <div id="singleplayerResultMessage" class="text-slate-300 text-lg max-w-md mx-auto">Parabéns!</div>
+                    <div class="grid grid-cols-2 gap-5 max-w-sm mx-auto">
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+                            <div class="text-slate-400 text-xs">✅ Acertos</div>
+                            <div id="singleplayerFinalCorrect" class="text-4xl font-black text-white">0</div>
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+                            <div class="text-slate-400 text-xs">🎯 Pontuação</div>
+                            <div id="singleplayerFinalPercentage" class="text-4xl font-black text-white">0%</div>
+                        </div>
                     </div>
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-                        <div class="text-slate-400 text-xs uppercase tracking-wide">Erros</div>
-                        <div class="text-3xl font-black text-white"><span id="wrongCount">0</span></div>
-                    </div>
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-                        <div class="text-slate-400 text-xs uppercase tracking-wide">Pontuação</div>
-                        <div class="text-3xl font-black text-white"><span id="percentage">0</span>%</div>
-                    </div>
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-                        <div class="text-slate-400 text-xs uppercase tracking-wide">🔥 Sequência</div>
-                        <div class="text-3xl font-black text-white"><span id="streak">0</span></div>
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="window.singleplayerRestart()"
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all">🔄
+                            Jogar Novamente</button>
+                        <button onclick="window.backToMainMenu()"
+                            class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-xl transition-all">🏠
+                            Menu Principal</button>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap justify-between items-center gap-3">
-                    <div id="difficulty"
-                        class="text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                        ⚡ MODO ATIVO</div>
-                    <div id="lives" class="text-2xl font-bold tracking-wide text-rose-400"></div>
+                <button onclick="window.backToMainMenu()"
+                    class="w-full mt-6 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all">←
+                    Voltar ao Menu</button>
+            </div>
+        </div>
+
+        <!-- ========== MULTIPLAYER ========== -->
+        <!-- MENU MULTIPLAYER (com input de tópico) -->
+        <div id="multiplayerMenuSection" class="hidden p-5 md:p-8">
+            <button onclick="window.backToMainMenu()"
+                class="mb-6 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-xl transition-all text-sm">←
+                Voltar</button>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- CRIAR SALA -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                    <h3 class="text-white font-bold text-xl mb-4">➕ Criar Sala</h3>
+                    <p class="text-slate-400 text-sm mb-4">Crie uma nova sala!</p>
+
+                    <input type="text" id="multiplayerPlayerNameCreate" placeholder="Seu nome..."
+                        class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-white mb-4 text-sm">
+
+                    <div class="relative flex-1 custom-select-search mb-4">
+                        <input type="text" id="multiplayerTopicSearchInput" placeholder="🔍 Pesquisar tópico..."
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-5 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                        <div id="multiplayerTopicDropdown"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl hidden overflow-hidden backdrop-blur-md bg-opacity-95">
+                            <div class="dropdown-list" id="multiplayerTopicDropdownList"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="window.createMultiplayerRoom()"
+                        class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold py-3 rounded-xl transition-all">🚀
+                        Criar Sala</button>
+                </div>
+
+                <!-- ENTRAR NA SALA -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                    <h3 class="text-white font-bold text-xl mb-4">🔐 Entrar em Sala</h3>
+                    <p class="text-slate-400 text-sm mb-4">Entre com um código de 4 dígitos!</p>
+
+                    <input type="text" id="multiplayerPlayerNameJoin" placeholder="Seu nome..."
+                        class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-white mb-4 text-sm">
+
+                    <input type="text" id="multiplayerRoomCodeInput" placeholder="Código (ex: 1234)" maxlength="4"
+                        class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-white mb-4 text-sm text-center text-2xl font-bold tracking-widest"
+                        inputmode="numeric">
+
+                    <button onclick="window.joinMultiplayerRoom()"
+                        class="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold py-3 rounded-xl transition-all">✅
+                        Entrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGUARDANDO JOGADORES -->
+        <div id="multiplayerWaitingSection" class="hidden p-5 md:p-8">
+            <div class="text-center space-y-6">
+                <div class="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full p-1">
+                    <div class="bg-slate-900 rounded-full px-8 py-4">
+                        <h2 class="text-white font-bold text-5xl font-mono tracking-widest"
+                            id="multiplayerRoomCodeDisplay">0000</h2>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-2xl mb-2">Sala Criada!</h3>
+                    <p class="text-slate-400">Compartilhe o código acima com seus amigos</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="multiplayerPlayersWaitingContainer"></div>
+
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <button onclick="window.startMultiplayerGame()"
+                        class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold px-8 py-3 rounded-xl transition-all">▶️
+                        Começar Jogo</button>
+                    <button onclick="window.backToMainMenu()"
+                        class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-8 py-3 rounded-xl transition-all">❌
+                        Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JOGO MULTIPLAYER -->
+        <div id="multiplayerGameSection" class="hidden p-5 md:p-8">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="space-y-1">
+                        <div class="text-slate-400 text-sm">Progresso</div>
+                        <div id="multiplayerProgressText" class="text-white font-bold">1/10</div>
+                    </div>
+                    <div class="h-2 flex-1 mx-6 bg-slate-800/70 rounded-full overflow-hidden">
+                        <div id="multiplayerProgressFill"
+                            class="h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300">
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div id="multiplayerTimer" class="text-5xl font-black text-white">15</div>
+                        <div class="text-xs text-slate-400">segundos</div>
+                    </div>
                 </div>
 
                 <div
                     class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-                    <div id="topic"
+                    <div id="multiplayerTopic"
                         class="inline-block text-xs font-bold px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 mb-4">
                         📘 Tópico</div>
-                    <div id="question" class="text-xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                    <div id="multiplayerQuestion" class="text-2xl md:text-4xl font-bold text-white leading-tight">
                         Carregando pergunta...</div>
                 </div>
 
-                <div id="feedback" class="hidden rounded-xl p-5 border-l-4 transition-all animate-fade-slide">
-                    <div class="flex items-center gap-3 font-bold text-lg mb-2">
-                        <span id="feedbackIcon" class="text-white">✓</span>
-                        <span id="feedbackTitle" class="text-white">Correto</span>
-                    </div>
-                    <div id="feedbackText" class="text-sm leading-relaxed text-slate-200"></div>
-                </div>
-
-                <div id="buttons" class="grid grid-cols-2 gap-4">
-                    <button onclick="window.answer(true)"
-                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-emerald-900/20">✓
+                <div id="multiplayerAnswerButtons" class="grid grid-cols-2 gap-4">
+                    <button onclick="window.submitMultiplayerAnswer(true)"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-5 rounded-xl text-lg transition-all shadow-lg shadow-emerald-900/20">✓
                         Verdadeiro</button>
-                    <button onclick="window.answer(false)"
-                        class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-4 rounded-xl text-lg transition-all shadow-lg shadow-rose-900/20">✗
+                    <button onclick="window.submitMultiplayerAnswer(false)"
+                        class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-5 rounded-xl text-lg transition-all shadow-lg shadow-rose-900/20">✗
                         Falso</button>
                 </div>
-                <button id="nextBtn" onclick="window.nextQuestion()"
-                    class="hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl transition-all text-center">Próxima
-                    questão →</button>
-            </div>
 
-            <div id="resultSection" class="hidden text-center space-y-6">
-                <div id="resultEmoji" class="text-7xl md:text-8xl">🏆</div>
-                <div id="finalScore"
-                    class="text-6xl md:text-7xl font-black bg-gradient-to-r from-amber-200 via-white to-indigo-200 bg-clip-text text-transparent">
-                    0%</div>
-                <div id="resultMessage" class="text-slate-300 text-lg max-w-md mx-auto">Parabéns, você finalizou!</div>
-                <div class="grid grid-cols-2 gap-5 max-w-sm mx-auto">
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <div class="text-slate-400 text-xs">✅ Acertos</div>
-                        <div id="finalCorrect" class="text-4xl font-black text-white">0</div>
-                    </div>
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <div class="text-slate-400 text-xs">🎯 Pontuação</div>
-                        <div id="finalPercentage" class="text-4xl font-black text-white">0%</div>
-                    </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h4 class="text-white font-bold mb-4">🏆 Placar em Tempo Real</h4>
+                    <div id="multiplayerLiveScoreboard" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
                 </div>
-                <button onclick="window.restart()"
-                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-xl transition-all w-full md:w-auto shadow-lg">🔄
-                    Jogar novamente</button>
             </div>
+        </div>
 
+        <!-- RESULTADO MULTIPLAYER -->
+        <div id="multiplayerResultSection" class="hidden p-5 md:p-8">
+            <div class="text-center space-y-8">
+                <h2 class="text-4xl font-black text-white">🏆 Resultado Final</h2>
+
+                <div id="multiplayerPodium" class="flex justify-center items-end gap-4 h-64 mb-8"></div>
+
+                <div id="multiplayerFinalRanking" class="space-y-3 max-w-2xl mx-auto"></div>
+
+                <button onclick="window.backToMainMenu()"
+                    class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-8 rounded-xl transition-all">🔄
+                    Voltar ao Menu</button>
+            </div>
         </div>
     </div>
 
-
-    <script type="module">
+    <script>
         import { stackQuestions, queueQuestions, linkedListQuestions, graphQuestions, hashTableQuestions, heapQuestions, orderingQuestions, searchQuestions, appealQuestions, dynamicProgrammingQuestions, complexityBigOQuestions, advancedStructuresQuestions, treeQuestions } from './questoes/data-struct/index.js';
         import { microservicesQuestions, tddQuestions, dddQuestions, cleanCodeQuestions, cleanArchQuestions } from './questoes/arch/index.js';
         import { javaQuestions, phpQuestions, pythonQuestions, golangQuestions } from './questoes/backend/index.js';
@@ -237,108 +422,67 @@
             ...javaQuestions, ...pythonQuestions, ...phpQuestions, ...javascriptQuestions, ...typescriptQuestions, ...golangQuestions,
         ];
 
-        let currentIndex = 0, score = 0, streak = 0, wrongCount = 0, answered = false;
-        let shuffledQuestions = [], filteredQuestions = [];
-        let gameMode = 'normal';
-        let lives = 3;
-        let weightedScore = 0, totalPossibleScore = 0;
-        const difficultyWeights = { easy: 1, medium: 2, hard: 4 };
-        let currentSelectedTopic = "";
+        let singleplayerState = {
+            gameQuestions: [],
+            currentIndex: 0,
+            score: 0,
+            streak: 0,
+            wrongCount: 0,
+            answered: false,
+            gameMode: "normal",
+            lives: 3,
+            weightedScore: 0,
+            totalPossibleScore: 0,
+            shuffledQuestions: [],
+        };
 
-        const topicSearchInput = document.getElementById('topicSearchInput');
-        const topicDropdown = document.getElementById('topicDropdown');
-        const topicDropdownList = document.getElementById('topicDropdownList');
-        const selectedTopicValueHidden = document.getElementById('selectedTopicValue');
-        const selectedTopicBadge = document.getElementById('selectedTopicBadge');
-        const modeSelect = document.getElementById('modeSelect');
-        const quizSection = document.getElementById('quizSection');
-        const resultSection = document.getElementById('resultSection');
+        let multiplayerState = {
+            currentRoom: null,
+            currentPlayer: null,
+            selectedTopic: "",
+            gameQuestions: [],
+            currentQuestionIndex: 0,
+            playerScores: {},
+            playerAnswered: {},
+            timerInterval: null,
+            timeRemaining: 15,
+            gameActive: false,
+            isCreator: false,
+        };
 
-        let allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
+        let allTopicsList = [...new Set(allQuestions.map(q => q.topic))].sort((a, b) => a.localeCompare(b, 'pt'));
 
-        function renderTopicDropdown(searchTerm = "") {
-            const term = searchTerm.trim().toLowerCase();
-            let filteredTopics = [];
-            if (term === "") {
-                filteredTopics = [...allTopicsList];
-            } else {
-                const startsWith = allTopicsList.filter(t => t.toLowerCase().startsWith(term));
-                const contains = allTopicsList.filter(t => t.toLowerCase().includes(term) && !t.toLowerCase().startsWith(term));
-                filteredTopics = [...startsWith, ...contains];
-            }
+        // DROPDOWN apenas para multiplayer
+        function setupMultiplayerDropdown() {
+            const input = document.getElementById('multiplayerTopicSearchInput');
+            const dropdown = document.getElementById('multiplayerTopicDropdown');
+            const dropdownList = document.getElementById('multiplayerTopicDropdownList');
 
-            if (filteredTopics.length === 0) {
-                topicDropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico encontrado</div>`;
-                topicDropdown.classList.remove('hidden');
-                return;
-            }
-
-            topicDropdownList.innerHTML = filteredTopics.map(topic => `
-                    <div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200 text-sm transition-colors border-b border-slate-700/50 last:border-0" data-topic="${topic.replace(/"/g, '&quot;')}">
-                        <span class="flex items-center gap-2">📚 ${topic}</span>
-                    </div>
-                `).join('');
-
-            document.querySelectorAll('.topic-option').forEach(opt => {
-                opt.addEventListener('click', (e) => {
-                    const topicValue = opt.getAttribute('data-topic');
-                    selectTopic(topicValue);
-                    topicDropdown.classList.add('hidden');
+            function render(searchTerm = "") {
+                const term = searchTerm.trim().toLowerCase();
+                let filtered = term === "" ? [...allTopicsList] : allTopicsList.filter(t => t.toLowerCase().includes(term));
+                if (filtered.length === 0) {
+                    dropdownList.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">❌ Nenhum tópico</div>`;
+                    dropdown.classList.remove('hidden');
+                    return;
+                }
+                dropdownList.innerHTML = filtered.map(topic => `<div class="topic-option px-4 py-3 hover:bg-indigo-600/40 cursor-pointer text-slate-200" data-topic="${topic}">📚 ${topic}</div>`).join('');
+                document.querySelectorAll('#multiplayerTopicDropdownList .topic-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        multiplayerState.selectedTopic = opt.getAttribute('data-topic');
+                        input.value = multiplayerState.selectedTopic;
+                        dropdown.classList.add('hidden');
+                    });
                 });
-            });
-        }
-
-        function selectTopic(topicValue) {
-            currentSelectedTopic = topicValue;
-            selectedTopicValueHidden.value = topicValue;
-            topicSearchInput.value = topicValue;
-            if (topicValue === "") {
-                selectedTopicBadge.innerHTML = `<span class="opacity-70">📌 Nenhum filtro aplicado (todos os tópicos)</span>`;
-            } else {
-                selectedTopicBadge.innerHTML = `<span class="bg-indigo-500/30 px-3 py-1 rounded-full text-xs flex items-center gap-1">🎯 Filtro: ${topicValue} <span class="cursor-pointer text-indigo-200 hover:text-white ml-1" onclick="window.clearTopicFilter()">✖️</span></span>`;
             }
-            topicDropdown.classList.add('hidden');
+            input.addEventListener('input', (e) => { render(e.target.value); dropdown.classList.remove('hidden'); });
+            input.addEventListener('focus', () => { render(input.value); dropdown.classList.remove('hidden'); });
+            document.addEventListener('click', (e) => { if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden'); });
+            render("");
         }
+        setupMultiplayerDropdown();
 
-        function clearTopicFilter() {
-            currentSelectedTopic = "";
-            selectedTopicValueHidden.value = "";
-            topicSearchInput.value = "";
-            selectedTopicBadge.innerHTML = `<span class="opacity-70">📌 Nenhum filtro aplicado</span>`;
-            renderTopicDropdown("");
-        }
-
-        topicSearchInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            renderTopicDropdown(val);
-            topicDropdown.classList.remove('hidden');
-        });
-
-        topicSearchInput.addEventListener('focus', () => {
-            const currentVal = topicSearchInput.value;
-            renderTopicDropdown(currentVal);
-            topicDropdown.classList.remove('hidden');
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!topicSearchInput.contains(e.target) && !topicDropdown.contains(e.target)) {
-                topicDropdown.classList.add('hidden');
-            }
-        });
-
-        topicDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        renderTopicDropdown("");
-
-        function inferDifficulty(question) {
-            const text = question.text.toLowerCase();
-            if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('bfs') || text.includes('programação dinâmica') || text.includes('dynamic programming') || text.includes('dijkstra') || text.includes('concorrência') || text.includes('deadlock')) return 'hard';
-            if (text.includes('queue') || text.includes('stack') || text.includes('hash') || text.includes('api') || text.includes('rest') || text.includes('microservices') || text.includes('docker') || text.includes('kafka') || text.includes('rabbitmq')) return 'medium';
-            return 'easy';
-        }
-
+        // ========== SINGLEPLAYER (SEM INPUT DE ASSUNTO, questões aleatórias de TODOS os tópicos) ==========
         function shuffleArray(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -348,197 +492,131 @@
             return a;
         }
 
-        function updateStats() {
-            const answeredCountVal = currentIndex + 1;
-            let percent = 0;
-            if (gameMode === 'normal' || gameMode === 'hardcore') {
-                percent = answeredCountVal > 0 ? Math.round((score / answeredCountVal) * 100) : 0;
-            } else {
-                percent = totalPossibleScore > 0 ? Math.round((weightedScore / totalPossibleScore) * 100) : 0;
-            }
-            document.getElementById('answeredCount').innerText = answeredCountVal;
-            document.getElementById('wrongCount').innerText = wrongCount;
-            document.getElementById('percentage').innerText = percent;
-            document.getElementById('streak').innerText = streak;
-            if (shuffledQuestions[currentIndex]) {
-                const diffLocal = inferDifficulty(shuffledQuestions[currentIndex]);
-                document.getElementById('difficulty').innerHTML = diffLocal === 'hard' ? '🔥 Dificuldade: HARD' : (diffLocal === 'medium' ? '⚡ Dificuldade: MÉDIO' : '🍃 Dificuldade: FÁCIL');
-            }
+        function inferDifficulty(question) {
+            const text = question.text.toLowerCase();
+            if (text.includes('complexidade') || text.includes('big o') || text.includes('árvore') || text.includes('heap') || text.includes('dfs') || text.includes('dijkstra')) return 'hard';
+            if (text.includes('queue') || text.includes('stack') || text.includes('hash') || text.includes('lista')) return 'medium';
+            return 'easy';
         }
 
-        function updateProgress() {
-            const progress = ((currentIndex + 1) / shuffledQuestions.length) * 100;
-            const fillEl = document.getElementById('progressFill');
-            if (fillEl) fillEl.style.width = `${progress}%`;
-            document.getElementById('progressText').innerText = `${currentIndex + 1}/${shuffledQuestions.length}`;
-        }
-
-        function loadQuestion() {
-            const q = shuffledQuestions[currentIndex];
-            if (!q) return;
-            document.getElementById('topic').innerHTML = `📘 ${q.topic}`;
-            document.getElementById('question').innerText = q.text;
-            if (gameMode === 'hardcore') {
-                const livesHtml = '❤️'.repeat(lives) + (lives <= 0 ? '💀' : '');
-                document.getElementById('lives').innerHTML = livesHtml;
-            } else {
-                document.getElementById('lives').innerHTML = '';
-            }
-            const feedbackDiv = document.getElementById('feedback');
-            feedbackDiv.classList.add('hidden');
-            feedbackDiv.classList.remove('border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
-            document.getElementById('buttons').style.display = 'grid';
-            document.getElementById('nextBtn').classList.add('hidden');
-            answered = false;
-            updateProgress();
-            updateStats();
-        }
-
-        function answer(userAnswer) {
-            if (answered) return;
-            answered = true;
-            const q = shuffledQuestions[currentIndex];
-            const isCorrect = (userAnswer === q.answer);
-            const difficulty = inferDifficulty(q);
-            const weight = difficultyWeights[difficulty] || 2;
-
-            totalPossibleScore += weight;
-
-            if (gameMode === 'normal') {
-                if (isCorrect) { score++; streak++; }
-                else { wrongCount++; streak = 0; }
-            }
-            else if (gameMode === 'enem') {
-                if (isCorrect) {
-                    weightedScore += weight;
-                    score++;
-                    streak++;
-                } else {
-                    wrongCount++;
-                    streak = 0;
-                    if (difficulty === 'easy') weightedScore -= 1;
-                    else if (difficulty === 'medium') weightedScore -= 0.5;
-                    if (weightedScore < 0) weightedScore = 0;
-                }
-            }
-            else if (gameMode === 'hardcore') {
-                if (isCorrect) {
-                    score++;
-                    streak++;
-                } else {
-                    wrongCount++;
-                    streak = 0;
-                    lives--;
-                    if (lives < 0) lives = 0;
-                    if (lives <= 0) {
-                        showResults(true);
-                        return;
-                    }
-                }
-            }
-
-            const feedbackDiv = document.getElementById('feedback');
-            feedbackDiv.classList.remove('hidden', 'border-l-emerald-500', 'border-l-rose-500', 'bg-emerald-950/30', 'bg-rose-950/30');
-            if (isCorrect) {
-                feedbackDiv.classList.add('border-l-emerald-500', 'bg-emerald-950/30');
-                document.getElementById('feedbackIcon').innerHTML = '✓';
-                document.getElementById('feedbackTitle').innerHTML = 'Correto!';
-            } else {
-                feedbackDiv.classList.add('border-l-rose-500', 'bg-rose-950/30');
-                document.getElementById('feedbackIcon').innerHTML = '✗';
-                document.getElementById('feedbackTitle').innerHTML = 'Incorreto!';
-            }
-            document.getElementById('feedbackText').innerHTML = q.explanation;
-            document.getElementById('buttons').style.display = 'none';
-            document.getElementById('nextBtn').classList.remove('hidden');
-            updateStats();
-        }
-
-        function nextQuestion() {
-            currentIndex++;
-            if (currentIndex >= shuffledQuestions.length) {
-                showResults(false);
-                return;
-            }
-            loadQuestion();
-        }
-
-        function showResults(gameOver = false) {
-            let percentage = 0;
-            if (gameMode === 'enem') {
-                percentage = totalPossibleScore > 0 ? Math.round((weightedScore / totalPossibleScore) * 100) : 0;
-            } else {
-                percentage = shuffledQuestions.length > 0 ? Math.round((score / shuffledQuestions.length) * 100) : 0;
-            }
-            let emoji = '📚', message = 'Continue estudando!';
-            if (gameOver) {
-                emoji = '💀';
-                message = `Você perdeu todas as vidas no Hardcore! Acertou ${score} de ${shuffledQuestions.length}.`;
-            } else if (percentage === 100) {
-                emoji = '🏆';
-                message = 'Perfeito! Domínio total.';
-            } else if (percentage >= 80) {
-                emoji = '🔥';
-                message = 'Muito bom! Quase lá.';
-            } else if (percentage >= 60) {
-                emoji = '👍';
-                message = 'Bom desempenho! Reforce os tópicos.';
-            } else {
-                emoji = '📖';
-                message = 'Tente novamente, você irá melhorar!';
-            }
-            document.getElementById('resultEmoji').innerText = emoji;
-            document.getElementById('finalScore').innerText = `${percentage}%`;
-            document.getElementById('finalCorrect').innerText = score;
-            document.getElementById('finalPercentage').innerText = `${percentage}%`;
-            document.getElementById('resultMessage').innerHTML = `${message} <br/> <span class="text-sm text-slate-400">${score} acertos de ${shuffledQuestions.length} questões</span>`;
-            quizSection.classList.add('hidden');
-            resultSection.classList.remove('hidden');
-        }
-
-        function restart() {
-            resultSection.classList.add('hidden');
-            window.startQuiz();
-        }
-
-        window.startQuiz = function () {
-            gameMode = modeSelect.value;
-            const selectedTopic = currentSelectedTopic;
-
-            if (selectedTopic && selectedTopic !== "") {
-                filteredQuestions = allQuestions.filter(q => q.topic === selectedTopic);
-                if (filteredQuestions.length === 0) {
-                    alert(`Nenhuma questão encontrada para o tópico "${selectedTopic}". Tente outro.`);
-                    return;
-                }
-            } else {
-                filteredQuestions = [...allQuestions];
-            }
-
-            if (filteredQuestions.length === 0) {
-                alert("Nenhuma questão disponível.");
+        window.startSingleplayer = function () {
+            const gameMode = document.getElementById('singleplayerModeSelect').value;
+            // Seleciona 12 questões aleatórias de todos os tópicos
+            const shuffledAll = shuffleArray([...allQuestions]);
+            const selectedQuestions = shuffledAll.slice(0, 12);
+            if (selectedQuestions.length < 10) {
+                alert("Poucas questões disponíveis.");
                 return;
             }
 
-            shuffledQuestions = shuffleArray(filteredQuestions);
-            currentIndex = 0;
-            score = 0;
-            streak = 0;
-            wrongCount = 0;
-            weightedScore = 0;
-            totalPossibleScore = 0;
-            lives = 3;
-            answered = false;
-            quizSection.classList.remove('hidden');
-            resultSection.classList.add('hidden');
-            loadQuestion();
+            singleplayerState.gameMode = gameMode;
+            singleplayerState.shuffledQuestions = selectedQuestions;
+            singleplayerState.currentIndex = 0;
+            singleplayerState.score = 0;
+            singleplayerState.streak = 0;
+            singleplayerState.wrongCount = 0;
+            singleplayerState.weightedScore = 0;
+            singleplayerState.totalPossibleScore = 0;
+            singleplayerState.lives = 3;
+
+            document.getElementById('singleplayerMenuSection').querySelector('.flex')?.classList?.add('hidden');
+            document.getElementById('singleplayerQuizSection').classList.remove('hidden');
+            document.getElementById('singleplayerResultSection').classList.add('hidden');
+            singleplayerLoadQuestion();
         };
 
-        window.answer = answer;
-        window.nextQuestion = nextQuestion;
-        window.restart = restart;
-        window.clearTopicFilter = clearTopicFilter;
+        function singleplayerLoadQuestion() {
+            const q = singleplayerState.shuffledQuestions[singleplayerState.currentIndex];
+            document.getElementById('singleplayerTopic').innerHTML = `📘 ${q.topic}`;
+            document.getElementById('singleplayerQuestion').textContent = q.text;
+            document.getElementById('singleplayerProgressText').textContent = `${singleplayerState.currentIndex + 1}/${singleplayerState.shuffledQuestions.length}`;
+            const percent = ((singleplayerState.currentIndex + 1) / singleplayerState.shuffledQuestions.length) * 100;
+            document.getElementById('singleplayerProgressFill').style.width = `${percent}%`;
+            document.getElementById('singleplayerFeedback').classList.add('hidden');
+            document.getElementById('singleplayerButtons').style.display = 'grid';
+            document.getElementById('singleplayerNextBtn').classList.add('hidden');
+            singleplayerState.answered = false;
+            singleplayerUpdateStats();
+        }
 
+        function singleplayerUpdateStats() {
+            const answered = singleplayerState.currentIndex + 1;
+            let percent = (singleplayerState.gameMode === 'enem') ?
+                (singleplayerState.totalPossibleScore ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0) :
+                Math.round((singleplayerState.score / answered) * 100);
+            document.getElementById('singleplayerAnsweredCount').innerText = answered;
+            document.getElementById('singleplayerWrongCount').innerText = singleplayerState.wrongCount;
+            document.getElementById('singleplayerPercentage').innerText = percent;
+            document.getElementById('singleplayerStreak').innerText = singleplayerState.streak;
+            let diff = inferDifficulty(singleplayerState.shuffledQuestions[singleplayerState.currentIndex]);
+            document.getElementById('singleplayerDifficulty').innerHTML = diff === 'hard' ? '🔥 HARD' : (diff === 'medium' ? '⚡ MÉDIO' : '🍃 FÁCIL');
+            if (singleplayerState.gameMode === 'hardcore') {
+                document.getElementById('singleplayerLives').innerHTML = '❤️'.repeat(Math.max(0, singleplayerState.lives));
+            } else { document.getElementById('singleplayerLives').innerHTML = ''; }
+        }
+
+        window.singleplayerAnswer = function (userAnswer) {
+            if (singleplayerState.answered) return;
+            singleplayerState.answered = true;
+            const q = singleplayerState.shuffledQuestions[singleplayerState.currentIndex];
+            const isCorrect = (userAnswer === q.answer);
+            const diff = inferDifficulty(q);
+            const weight = { easy: 1, medium: 2, hard: 4 }[diff];
+            singleplayerState.totalPossibleScore += weight;
+            if (singleplayerState.gameMode === 'normal') {
+                if (isCorrect) { singleplayerState.score++; singleplayerState.streak++; } else { singleplayerState.wrongCount++; singleplayerState.streak = 0; }
+            } else if (singleplayerState.gameMode === 'enem') {
+                if (isCorrect) { singleplayerState.weightedScore += weight; singleplayerState.score++; singleplayerState.streak++; }
+                else { singleplayerState.wrongCount++; singleplayerState.streak = 0; if (diff === 'easy') singleplayerState.weightedScore -= 1; else if (diff === 'medium') singleplayerState.weightedScore -= 0.5; singleplayerState.weightedScore = Math.max(0, singleplayerState.weightedScore); }
+            } else if (singleplayerState.gameMode === 'hardcore') {
+                if (isCorrect) { singleplayerState.score++; singleplayerState.streak++; }
+                else { singleplayerState.wrongCount++; singleplayerState.streak = 0; singleplayerState.lives--; if (singleplayerState.lives <= 0) { singleplayerShowResults(true); return; } }
+            }
+            const fb = document.getElementById('singleplayerFeedback');
+            fb.classList.remove('hidden', 'border-l-emerald-500', 'border-l-rose-500');
+            fb.classList.add(isCorrect ? 'border-l-emerald-500' : 'border-l-rose-500', isCorrect ? 'bg-emerald-950/30' : 'bg-rose-950/30');
+            document.getElementById('singleplayerFeedbackIcon').innerHTML = isCorrect ? '✓' : '✗';
+            document.getElementById('singleplayerFeedbackTitle').innerHTML = isCorrect ? 'Correto!' : 'Incorreto!';
+            document.getElementById('singleplayerFeedbackText').innerHTML = q.explanation;
+            document.getElementById('singleplayerButtons').style.display = 'none';
+            document.getElementById('singleplayerNextBtn').classList.remove('hidden');
+            singleplayerUpdateStats();
+        };
+
+        window.singleplayerNextQuestion = function () {
+            singleplayerState.currentIndex++;
+            if (singleplayerState.currentIndex >= singleplayerState.shuffledQuestions.length) singleplayerShowResults(false);
+            else singleplayerLoadQuestion();
+        };
+
+        function singleplayerShowResults(gameOver) {
+            let total = singleplayerState.shuffledQuestions.length;
+            let percent = (singleplayerState.gameMode === 'enem') ? (singleplayerState.totalPossibleScore ? Math.round((singleplayerState.weightedScore / singleplayerState.totalPossibleScore) * 100) : 0) : Math.round((singleplayerState.score / total) * 100);
+            let emoji = percent >= 80 ? '🏆' : (percent >= 60 ? '🔥' : '📚');
+            let msg = gameOver ? `💀 Game Over! Acertou ${singleplayerState.score}/${total}` : `Você acertou ${singleplayerState.score} de ${total}!`;
+            document.getElementById('singleplayerResultEmoji').innerText = emoji;
+            document.getElementById('singleplayerFinalScore').innerText = `${percent}%`;
+            document.getElementById('singleplayerFinalCorrect').innerText = singleplayerState.score;
+            document.getElementById('singleplayerFinalPercentage').innerText = `${percent}%`;
+            document.getElementById('singleplayerResultMessage').innerHTML = msg;
+            document.getElementById('singleplayerQuizSection').classList.add('hidden');
+            document.getElementById('singleplayerResultSection').classList.remove('hidden');
+        }
+
+        window.singleplayerRestart = function () {
+            document.getElementById('singleplayerResultSection').classList.add('hidden');
+            window.startSingleplayer();
+        };
+
+        // ========== MULTIPLAYER STUBS (mantido funcional) ==========
+        window.showSingleplayerMenu = function () { document.getElementById('mainMenuSection').classList.add('hidden'); document.getElementById('singleplayerMenuSection').classList.remove('hidden'); };
+        window.showMultiplayerMenu = function () { document.getElementById('mainMenuSection').classList.add('hidden'); document.getElementById('multiplayerMenuSection').classList.remove('hidden'); };
+        window.backToMainMenu = function () { location.reload(); };
+
+        window.createMultiplayerRoom = function () { alert("Modo multiplayer em desenvolvimento - use Singleplayer!"); };
+        window.joinMultiplayerRoom = function () { alert("Modo multiplayer em desenvolvimento"); };
+        window.startMultiplayerGame = function () { };
+        window.submitMultiplayerAnswer = function () { };
     </script>
 </body>
 
